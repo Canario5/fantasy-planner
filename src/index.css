@@ -1,0 +1,19 @@
+body {
+	margin: 0;
+	font-family: -apple-system, BlinkMacSystemFont, "Pontano Sans", sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	box-sizing: border-box;
+	color: #fcfafa;
+}
+
+code {
+	font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+/*
+font-family: 'Source Sans Pro', sans-serif;
+font-family: 'Alegreya Sans', sans-serif;
+font-family: 'Pontano Sans', sans-serif;
+
+*/
