@@ -1,29 +1,63 @@
 import { useEffect, useState } from "react"
+import isMonday from "date-fns/isMonday"
+import previousMonday from "date-fns/previousMonday"
+import format from "date-fns/format"
+import add from "date-fns/add"
+import eachDayOfInterval from "date-fns/eachDayOfInterval"
+
+import HeadlineBox from "./HeadlineBox"
+
 import "./GridHeadline.css"
 
 export default function GridHeadline() {
-	const [date, setDate] = useState(0)
+	const [dates, setDates] = useState([])
+	const [headlineBoxes, setHeadlineBoxes] = useState()
 
 	useEffect(() => {
-		const today = new Date()
-		const dateText = `${today.getDate()}. ${today.toLocaleString("default", {
-			month: "long",
-		})}`
-		setDate(() => dateText)
-		console.log("its alive!")
-	}, [])
+		if (!dates?.length) {
+			const today = new Date()
+			const monday = isMonday(today) ? today : previousMonday(today)
+			const sunday = add(monday, { days: 6 })
+
+			setDates(() => eachDayOfInterval({ start: monday, end: sunday }))
+		}
+
+		console.log(dates)
+		generateBoxes()
+
+		console.log(headlineBoxes)
+		/*
+		console.log(dates.length) */
+	}, [dates])
+
+	function generateBoxes() {
+		setHeadlineBoxes((oldValues) => {
+			console.log("SetHeadlineBoxes() start")
+
+			console.log(oldValues?.length + " vs " + dates?.length)
+			if (headlineBoxes?.length === dates?.length) return oldValues
+
+			console.log("SetHeadlineBoxes() run")
+			return dates.map((dateText, i) => (
+				<HeadlineBox
+					key={i}
+					className={`headline-box-${i}`}
+					dayDate={format(dateText, "d iii")}
+				/>
+			))
+		})
+	}
+
+	/* function addBox(number) {
+		setHeadlineBoxes(() => console.log(number))
+	}
+	<HeadlineBox className="headline-new" toggle={() => addBox(2)}></HeadlineBox> */
 
 	return (
-		<div className="grid-headlines">
-			<div className="headline-teams"></div>
-			<div className="headline-mon"></div>
-			<div className="headline-tue"></div>
-			<div className="headline-wed"></div>
-			<div className="headline-thu"></div>
-			<div className="headline-fri"></div>
-			<div className="headline-sat"></div>
-			<div className="headline-sun"></div>
-			<div className="headline-new"></div>
-		</div>
+		<>
+			<div className="headline-box-team">Team</div>
+			{headlineBoxes}
+			<div className="headline-box-last">Add</div>
+		</>
 	)
 }
