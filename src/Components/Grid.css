@@ -1,4 +1,15 @@
-.grid {
+/* .grid {
+	display: grid;
+	grid-auto-rows: 100px;
+	grid-template-columns: repeat(9, 50px);
+	grid-auto-columns: 50px;
+
+	position: relative;
+	margin: 3rem auto 0;
+	max-width: 90%;
+} */
+
+/* .grid {
 	display: grid;
 	grid-auto-rows: 100px;
 	grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
@@ -11,7 +22,7 @@
 }
 
 .grid > * {
-	/* background-image: background-gradient(#58ac30, #a7df62); */
+	
 	color: black;
 	box-sizing: border-box;
 	width: 100%;
@@ -22,12 +33,12 @@
 }
 
 .grid > *:hover {
-	/* background-image: background-gradient(#58ac30, #a7df62); */
+
 	transform: scale(1.05);
 	transition: 0.2s;
 	background-image: linear-gradient(to left top, #ef27a6, #7288fa);
 	border: 2px solid lime;
-}
+} */
 
 /* --- */
 

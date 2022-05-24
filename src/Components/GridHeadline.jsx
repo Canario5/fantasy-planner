@@ -14,7 +14,8 @@ export default function GridHeadline() {
 	const [headlineBoxes, setHeadlineBoxes] = useState()
 
 	useEffect(() => {
-		if (!dates?.length) {
+		if (dates?.length === 0) {
+			console.log("DATE is running out")
 			const today = new Date()
 			const monday = isMonday(today) ? today : previousMonday(today)
 			const sunday = add(monday, { days: 6 })
@@ -26,8 +27,6 @@ export default function GridHeadline() {
 		generateBoxes()
 
 		console.log(headlineBoxes)
-		/*
-		console.log(dates.length) */
 	}, [dates])
 
 	function generateBoxes() {
@@ -41,7 +40,7 @@ export default function GridHeadline() {
 			return dates.map((dateText, i) => (
 				<HeadlineBox
 					key={i}
-					className={`headline-box-${i}`}
+					className={`grid-headliner headline-box-${i}`}
 					dayDate={format(dateText, "d iii")}
 				/>
 			))
@@ -54,10 +53,10 @@ export default function GridHeadline() {
 	<HeadlineBox className="headline-new" toggle={() => addBox(2)}></HeadlineBox> */
 
 	return (
-		<>
-			<div className="headline-box-team">Team</div>
+		<div className="grid-headline">
+			<div className="grid-headliner headline-box-team">Team</div>
 			{headlineBoxes}
-			<div className="headline-box-last">Add</div>
-		</>
+			<div className="grid-headliner headline-box-total">Total</div>
+		</div>
 	)
 }

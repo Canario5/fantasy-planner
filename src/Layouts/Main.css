@@ -1,0 +1,11 @@
+.main-container {
+	margin: 2rem auto;
+	max-width: 95%;
+}
+
+@media only screen and (min-width: 600px) {
+	.main-container {
+		margin: 5rem auto;
+		max-width: 90%;
+	}
+}

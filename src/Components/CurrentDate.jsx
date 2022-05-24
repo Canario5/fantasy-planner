@@ -10,5 +10,13 @@ export default function CurrentDate() {
 		setDate(() => format(new Date(), "PP"))
 	}, [])
 
-	return <div className="current-date">{date}</div>
+	return (
+		<div className="current-date-block">
+			<div className="prev-week">Prev Week</div>
+			<div className="next-week">Next Week</div>
+			<div className="current-date">{date}</div>
+			<div className="add-day">Add Day</div>
+			<div className="add-week">Add Week</div>
+		</div>
+	)
 }
