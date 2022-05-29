@@ -15,25 +15,25 @@ export default function GridHeadline() {
 
 	useEffect(() => {
 		if (dates?.length === 0) {
-			console.log("DATE is running out")
 			const today = new Date()
 			const monday = isMonday(today) ? today : previousMonday(today)
 			const sunday = add(monday, { days: 6 })
 
-			setDates(() => eachDayOfInterval({ start: monday, end: sunday }))
+			setDates(() =>
+				eachDayOfInterval({ start: monday, end: sunday }).map((day) =>
+					format(day, "yyyy-MM-dd")
+				)
+			)
 		}
 
 		console.log(dates)
 		generateBoxes()
-
-		console.log(headlineBoxes)
 	}, [dates])
 
 	function generateBoxes() {
 		setHeadlineBoxes((oldValues) => {
 			console.log("SetHeadlineBoxes() start")
 
-			console.log(oldValues?.length + " vs " + dates?.length)
 			if (headlineBoxes?.length === dates?.length) return oldValues
 
 			console.log("SetHeadlineBoxes() run")
@@ -41,7 +41,7 @@ export default function GridHeadline() {
 				<HeadlineBox
 					key={i}
 					className={`grid-headliner headline-box-${i}`}
-					dayDate={format(dateText, "d iii")}
+					dayDate={format(new Date(dateText), "d iii")}
 				/>
 			))
 		})

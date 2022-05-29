@@ -1,39 +1,33 @@
-import { set } from "date-fns"
 import { useState, useEffect } from "react"
 
 export default function TeamsNhl() {
-	const [teamData, setTeamData] = useState({})
+	const [teamData, setTeamData] = useState(new Map())
 	const [num, setNum] = useState(false)
-	console.log("Bananas")
 
 	useEffect(() => {
+		console.log("Kachna")
+		console.log(num)
+
 		async function getIds() {
 			const res = await fetch("https://statsapi.web.nhl.com/api/v1/teams")
 			const data = await res.json()
 
-			const newData = data.teams.map((teamData) => {
-				const team = new Map()
-
-				return team.set(teamData.id, teamData.abbreviation)
+			const newData = new Map()
+			const iteData = data.teams.map((teamData) => {
+				newData.set(teamData.id, teamData.abbreviation)
 			})
 
-			console.log(newData)
-			localStorage.setItem("teamData", JSON.stringify(newData))
+			setTeamData(() => newData)
+			localStorage.setItem("teamNames", JSON.stringify([...newData]))
 		}
-		if (localStorage.getItem("teamData") === null) {
-			console.log("localstorage NENI")
+		if (localStorage.getItem("teamNames") === null || num) {
 			getIds()
-			/* setNum(false) */
+			setNum(false)
 		}
 
-		if (localStorage.getItem("teamData") !== null) {
-			console.log("localstorage plne")
-			let deserialized = new Map(JSON.parse(localStorage.getItem("teamData")))
-			console.log(deserialized)
-			/* setNum(false) */
+		if (localStorage.getItem("teamNames") !== null) {
+			setTeamData(() => new Map(JSON.parse(localStorage.getItem("teamNames"))))
 		}
-
-		/* 	localStorage.setItem("teamData", JSON.stringify(teamData)) */
 	}, [num])
 
 	const klikuj = () => setNum(true)

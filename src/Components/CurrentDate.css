@@ -24,7 +24,7 @@
 }
 
 .current-date-block > * {
-	padding: calc(1rem + 2px) 0 1rem;
+	padding: calc(0.75rem + 1px) 0 0.75rem;
 	font-size: 1.25rem;
 	width: 33%;
 	transition: all 0.5s ease;
