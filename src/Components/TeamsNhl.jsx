@@ -4,7 +4,7 @@ export default function TeamsNhl() {
 	const [teamData, setTeamData] = useState(new Map())
 	const [num, setNum] = useState(false)
 
-	useEffect(() => {
+	/* useEffect(() => {
 		console.log("Kachna")
 		console.log(num)
 
@@ -21,14 +21,14 @@ export default function TeamsNhl() {
 			localStorage.setItem("teamNames", JSON.stringify([...newData]))
 		}
 		if (localStorage.getItem("teamNames") === null || num) {
-			getIds()
+				getIds()
 			setNum(false)
 		}
 
 		if (localStorage.getItem("teamNames") !== null) {
 			setTeamData(() => new Map(JSON.parse(localStorage.getItem("teamNames"))))
 		}
-	}, [num])
+	}, [num]) */
 
 	const klikuj = () => setNum(true)
 
