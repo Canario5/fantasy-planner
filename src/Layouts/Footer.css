@@ -1,3 +1,7 @@
 .footer {
-	background-color: rgb(178, 176, 172);
+	background-color: #ef27a6;
+	min-height: 3rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }

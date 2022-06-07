@@ -8,7 +8,7 @@ export default function ToolsMenu() {
 					<a className="toolsmenu-link">Matchup analyzer</a>
 				</li>
 				<li className="">
-					<a className="toolsmenu-link">Game planner</a>
+					<a className="toolsmenu-link first-start">Game planner</a>
 				</li>
 				<li className="">
 					<a className="toolsmenu-link">Draft assistant</a>

@@ -48,7 +48,8 @@
 	transition: all 0.55s ease;
 }
 
-.toolsmenu li:hover .toolsmenu-link {
+.toolsmenu li:hover .toolsmenu-link,
+.first-start {
 	background-color: #342e37;
 	color: #fcfafa;
 	padding: 6px 10px;
