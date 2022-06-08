@@ -1,55 +1,18 @@
-import { useState, useEffect } from "react"
-
-/* import HeadlineBox from "./HeadlineBox" */
 import { logoNhl } from "./Logos"
 import "./GridTeam.css"
 
 export default function GridTeam(props) {
-	const [days, setDays] = useState([])
 	const { teamId } = props
-	console.log(props)
 
-	useEffect(() => {
-		if (props.schedule && days.length !== props.schedule.length) {
-			console.log("carstan")
-			setDays(() => {
-				return props.schedule.map((oneDay, i) => (
-					<div key={i} className={`grid-team grid-${props.shortname}`}>
-						<img
-							src={logoNhl[oneDay]}
-							className={`grid-logo grid-${props.shortname}`}
-							alt={`${props.shortname} logo`}
-						/>
-					</div>
-				))
-
-				/* return props.schedule.map((oneDay, i) => (
-				<div key={i} className={`grid-team-${props.shortname}`}>
-					<div className="grid-headliner headline-box-team">Team</div>
-					<div className={`grid-headliner headline-box-${i}`}>
-						<img src={oneDay} alt="React Logo" />
-					</div>
-					<div className="grid-headliner headline-box-total">Total</div>
-				</div>
-			)) */
-			})
-		}
-		console.log(days)
-	})
-	/* setDays((oldValues) => {
-		console.log("team days start")
-
-		if (oldValues?.length === props?.schedule?.length) return oldValues
-
-		console.log("team days run")
-		return props.schedule.map((oneDay, i) => (
-			<div key={i} className={`grid-headliner headline-box-${i}`}>
-				<img src={logoNhl[{ oneDay }]} alt="React Logo" />
-			</div>
-		))
-
-		if (props.schedule) console.log("YES")
-	}) */
+	const days = props.schedule.map((oneDay, i) => (
+		<div key={i} className={`grid-team grid-col-${i} grid-${props.shortname}`}>
+			<img
+				src={logoNhl[oneDay]}
+				className={`grid-logo grid-${props.shortname}`}
+				alt={`${props.shortname} logo`}
+			/>
+		</div>
+	))
 
 	/* function addBox(number) {
 		setHeadlineBoxes(() => console.log(number))
@@ -63,6 +26,7 @@ export default function GridTeam(props) {
 					src={logoNhl[teamId]}
 					className={`grid-logo grid-${props.shortname}`}
 					alt={`${props.shortname} logo`}
+					title={`${props.shortname}`}
 				/>
 			</div>
 			{days}
