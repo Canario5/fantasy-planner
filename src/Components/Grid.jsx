@@ -7,6 +7,7 @@ import eachDayOfInterval from "date-fns/eachDayOfInterval"
 import getWeek from "date-fns/getWeek"
 
 import GridHeadline from "./GridHeadline"
+import GridSubHeadline from "./GridSubHeadline"
 import GridTeam from "./GridTeam"
 import CurrentDate from "../Components/CurrentDate"
 import TeamsNhl from "./TeamsNhl"
@@ -14,35 +15,104 @@ import TeamsNhl from "./TeamsNhl"
 import "./Grid.css"
 
 export default function Grid() {
-	const [dates, setDates] = useState([])
-	const [teamData, setTeamData] = useState()
-	const [schedule, setSchedule] = useState()
+	const [dates, setDates] = useState(0)
+	const [teamData, setTeamData] = useState(0)
+	const [schedule, setSchedule] = useState(0)
 
-	const [gridData, setGridData] = useState()
-	const [gridEle, setGridEle] = useState()
+	/* const [gridData, setGridData] = useState()
+	const [gridEle, setGridEle] = useState() */
 	/* 	const [num, setNum] = useState(false) */
 	const [refresh, setRefresh] = useState(false)
 
 	useEffect(() => {
 		console.log("useEffect #1")
+
 		const currentWeek = getDate()
 		const lastUpdate = localStorage.getItem("lastUpdate") || []
-		setDates(currentWeek)
+		if (dates === 0) setDates(currentWeek)
 
 		if (currentWeek.indexOf(lastUpdate) === -1) {
 			console.log("test")
 			setTeamData(getIds())
 			setSchedule(getGameDates())
-		} else {
-			const storedTeamData = new Map(JSON.parse(localStorage.getItem("teamNames")))
-			setTeamData(storedTeamData)
+		}
 
-			const storedSchedule = new Map(JSON.parse(localStorage.getItem("schedule")))
+		const storedTeamData = new Map(JSON.parse(localStorage.getItem("teamNames"))) || []
+		const storedSchedule = new Map(JSON.parse(localStorage.getItem("schedule"))) || []
+		if (teamData === 0 || schedule === 0) {
+			setTeamData(storedTeamData)
 			setSchedule(storedSchedule)
 		}
-	}, [])
+	}, [teamData, schedule])
 
-	useEffect(() => {
+	let gridData = 0
+	let gridEle = 0
+	let matchesPerDay = []
+
+	if (teamData?.size > 0 && schedule?.size > 0) {
+		console.log(schedule)
+		console.log(teamData)
+		console.log(dates)
+
+		const daysWithGame = dates.map((date) => {
+			if (schedule.has(date)) return schedule.get(date)
+
+			return false
+		})
+
+		const tempMap = new Map()
+		teamData.forEach((value, key) => tempMap.set(key, new Array()))
+		console.log(daysWithGame)
+
+		daysWithGame.map((day) => {
+			let matchCount = 0
+			// VALIDATE
+			if (day === false) {
+				tempMap.forEach((value, key) => tempMap.set(key, [...value, 9999]))
+				matchesPerDay.push(matchCount)
+				return
+			}
+
+			// prettier-ignore
+			tempMap.forEach((value, key) => {
+				
+				if (day.home.indexOf(key) !== -1) {
+					tempMap.set(key, [...value, day.away[day.home.indexOf(key)]])
+					matchCount++
+					return
+				}
+				if (day.away.indexOf(key) !== -1) {
+					tempMap.set(key, [...value, day.home[day.away.indexOf(key)]*-1])
+					matchCount++
+					return
+				}
+
+				tempMap.set(key, [...value, 9999])
+			})
+
+			if (matchCount !== 0) matchesPerDay.push(matchCount)
+			matchCount = 0
+		})
+
+		console.log(tempMap)
+		gridData = tempMap
+	}
+
+	if (gridData?.size > 0) {
+		console.log(gridData)
+		console.log(teamData)
+
+		let data = []
+		gridData.forEach((value, key) =>
+			data.push(
+				<GridTeam key={key} teamId={key} shortname={teamData.get(key)} schedule={value} />
+			)
+		)
+		console.log(data)
+		gridEle = data
+	}
+
+	/* 	useEffect(() => {
 		console.log("useEffect #2")
 		if (teamData?.size > 0 && schedule?.size > 0) {
 			console.log(schedule)
@@ -75,6 +145,7 @@ export default function Grid() {
 						tempMap.set(key, [...value, day.away[day.home.indexOf(key)]])
 					})
 			})
+
 			console.log(tempMap)
 			setGridData(tempMap)
 		}
@@ -102,7 +173,7 @@ export default function Grid() {
 				return data
 			})
 		}
-	}, [gridData])
+	}, [gridData]) */
 
 	/* if (localStorage.getItem("teamNames") === null || refresh) {
 			getIds()
@@ -166,12 +237,12 @@ export default function Grid() {
 	return (
 		<div className="grid">
 			<CurrentDate
-				week={getWeek(new Date(dates[0]), { weekStartsOn: 1 })}
+				week={getWeek(new Date(dates?.[0]), { weekStartsOn: 1 })}
 				refresh={refresh}
 				setRefresh={setRefresh}
 			/>
 			<GridHeadline dates={dates}></GridHeadline>
-			<GridHeadline dates={dates}></GridHeadline>
+			<GridSubHeadline matchesPerDay={matchesPerDay}></GridSubHeadline>
 
 			{gridEle}
 		</div>

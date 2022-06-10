@@ -4,7 +4,7 @@
 }
 
 .grid-team-row:not(:last-child) {
-	margin-bottom: 3px;
+	margin-bottom: 2px;
 }
 
 .grid-team {
@@ -18,16 +18,12 @@
 }
 
 .grid-team:hover {
-	background-color: rgba(64, 64, 64, 0.1);
+	background-color: darkslategray;
 	transition: ease-out 0.35s;
 }
 
 .grid-team:not(:first-child) {
 	margin-left: 1px;
-}
-
-.grid-team:not(:last-child) {
-	margin-right: 1px;
 }
 
 .grid-team-home {
@@ -44,9 +40,25 @@
 	margin: 3px 0;
 }
 
+.grid-home {
+	background-color: #fcfcfc;
+}
+
+.grid-away {
+	background-color: rgb(225 45 166 / 95%);
+}
+
 /* --- */
 
 @media only screen and (min-width: 600px) {
+	.grid-team-row:not(:last-child) {
+		margin-bottom: 3px;
+	}
+
+	.grid-team:not(:last-child) {
+		margin-right: 1px;
+	}
+
 	.grid-logo {
 		min-width: 36px;
 		margin: 5px 0;
@@ -56,7 +68,6 @@
 @media only screen and (min-width: 905px) {
 	.grid-logo {
 		width: 40%;
-		/* filter: drop-shadow(2px 3px 2px rgb(0 0 0 / 0.5)); */
 		filter: drop-shadow(2px 2px 1px rgba(247, 247, 247, 0.4));
 	}
 }

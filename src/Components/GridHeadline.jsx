@@ -15,6 +15,7 @@ export default function GridHeadline(props) {
 	}
 	<HeadlineBox className="headline-new" toggle={() => addBox(2)}></HeadlineBox> */
 
+	if (!props.dates) return
 	const headlineBoxes = props.dates?.map((day, i) => (
 		<HeadlineBox
 			key={i}
@@ -25,9 +26,9 @@ export default function GridHeadline(props) {
 
 	return (
 		<div className="grid-headline">
-			<div className="grid-headliner headline-box-team">Team</div>
+			<div className="grid-headliner grid-col-first">Team</div>
 			{headlineBoxes}
-			<div className="grid-headliner headline-box-total">Total</div>
+			<div className="grid-headliner grid-col-last">Total</div>
 		</div>
 	)
 }
