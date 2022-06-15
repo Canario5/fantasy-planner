@@ -15,41 +15,89 @@ import TeamsNhl from "./TeamsNhl"
 import "./Grid.css"
 
 export default function Grid() {
-	const [dates, setDates] = useState(0)
-	const [teamData, setTeamData] = useState(0)
-	const [schedule, setSchedule] = useState(0)
+	const [dates, setDates] = useState([])
+	const [teamData, setTeamData] = useState(new Map())
+	const [schedule, setSchedule] = useState(new Map())
 
 	/* const [gridData, setGridData] = useState()
-	const [gridEle, setGridEle] = useState() */
+	 */
 	/* 	const [num, setNum] = useState(false) */
-	const [refresh, setRefresh] = useState(false)
+	const [forceRefresh, setForceRefresh] = useState(false)
+	const [matchesPerDay, setMatchesPerDay] = useState(false)
+
+	const [gridEle, setGridEle] = useState(
+		Array(32).fill(<GridTeam schedule={[9999, 9999, 9999, 9999, 9999, 9999, 9999]} />)
+	)
+
+	console.log("healthy banana")
+
+	let gridData = 0
+	/* let gridEle = 0 */
 
 	useEffect(() => {
 		console.log("useEffect #1")
 
-		const currentWeek = getDate()
+		const currentWeek = getDates()
+		if (dates && dates.length === 0) setDates(currentWeek)
+
 		const lastUpdate = localStorage.getItem("lastUpdate") || []
-		if (dates === 0) setDates(currentWeek)
+		if (!currentWeek.includes(lastUpdate || forceRefresh)) setTeamData(getIds())
 
-		if (currentWeek.indexOf(lastUpdate) === -1) {
-			console.log("test")
-			setTeamData(getIds())
-			setSchedule(getGameDates())
-		}
+		const storedTeamData =
+			new Map(JSON.parse(localStorage.getItem("teamNames"))) || new Map()
 
-		const storedTeamData = new Map(JSON.parse(localStorage.getItem("teamNames"))) || []
-		const storedSchedule = new Map(JSON.parse(localStorage.getItem("schedule"))) || []
-		if (teamData === 0 || schedule === 0) {
+		if (teamData.size === 0) {
+			console.log("load from localStorage")
 			setTeamData(storedTeamData)
+		}
+	}, [])
+
+	useEffect(() => {
+		console.log("useEffect #2")
+
+		const currentWeek = getDates()
+		if (dates && dates.length === 0) setDates(currentWeek)
+
+		const lastUpdate = localStorage.getItem("lastUpdate") || []
+		if (!currentWeek.includes(lastUpdate || forceRefresh)) setSchedule(getGameDates())
+
+		const storedSchedule =
+			new Map(JSON.parse(localStorage.getItem("schedule"))) || new Map()
+
+		if (schedule.size === 0) {
+			console.log("load from localStorage")
 			setSchedule(storedSchedule)
 		}
 	}, [])
 
-	let gridData = 0
-	let gridEle = 0
-	let matchesPerDay = []
+	/* useEffect(() => {
+		console.log("useEffect #1")
 
-	if (teamData?.size > 0 && schedule?.size > 0) {
+		const currentWeek = getDates()
+		if (dates === 0) setDates(currentWeek)
+
+		const lastUpdate = localStorage.getItem("lastUpdate") || []
+		if (!currentWeek.includes(lastUpdate)) {
+			setTeamData(getIds())
+			setSchedule(getGameDates())
+		}
+
+		const storedTeamData =
+			new Map(JSON.parse(localStorage.getItem("teamNames"))) || new Map()
+		const storedSchedule =
+			new Map(JSON.parse(localStorage.getItem("schedule"))) || new Map()
+		if (teamData === 0 || schedule === 0) {
+			setTeamData(storedTeamData)
+			setSchedule(storedSchedule)
+		}
+	}, []) */
+
+	useEffect(() => {
+		console.log("useEffect #3")
+
+		let matchesPerDayTemp = []
+
+		/* 	if (teamData?.size > 0 && schedule?.size > 0) { */
 		console.log(schedule)
 		console.log(teamData)
 		console.log(dates)
@@ -69,7 +117,7 @@ export default function Grid() {
 			// VALIDATE
 			if (day === false) {
 				tempMap.forEach((value, key) => tempMap.set(key, [...value, 9999]))
-				matchesPerDay.push(matchCount)
+				matchesPerDayTemp.push(matchCount)
 				return
 			}
 
@@ -90,34 +138,35 @@ export default function Grid() {
 				tempMap.set(key, [...value, 9999])
 			})
 
-			if (matchCount !== 0) matchesPerDay.push(matchCount)
+			if (matchCount !== 0) matchesPerDayTemp.push(matchCount)
 			matchCount = 0
 		})
-
+		setMatchesPerDay(matchesPerDayTemp)
 		console.log(tempMap)
 		gridData = tempMap
-	}
+		/* 	} */
 
-	if (gridData?.size > 0) {
-		console.log(gridData)
-		console.log(teamData)
+		if (gridData?.size > 0) {
+			console.log(gridData)
+			console.log(teamData)
 
-		let data = []
-		gridData.forEach((value, key) =>
-			data.push(
-				<GridTeam key={key} teamId={key} shortname={teamData.get(key)} schedule={value} />
+			let data = []
+			gridData.forEach((value, key) =>
+				data.push(
+					<GridTeam key={key} teamId={key} shortname={teamData.get(key)} schedule={value} />
+				)
 			)
-		)
-		console.log(data)
-		gridEle = data
-	}
+			console.log(data)
+			setGridEle(data)
+		}
+	}, [])
 
 	return (
 		<div className="grid">
 			<CurrentDate
 				week={getWeek(new Date(dates?.[0]), { weekStartsOn: 1 })}
-				refresh={refresh}
-				setRefresh={setRefresh}
+				forceRefresh={forceRefresh}
+				setForceRefresh={setForceRefresh}
 			/>
 			<GridHeadline dates={dates}></GridHeadline>
 			<GridSubHeadline matchesPerDay={matchesPerDay}></GridSubHeadline>
@@ -127,7 +176,7 @@ export default function Grid() {
 	)
 }
 
-function getDate() {
+function getDates() {
 	const today = new Date()
 	const monday = isMonday(today) ? today : previousMonday(today)
 	const sunday = add(monday, { days: 6 })
