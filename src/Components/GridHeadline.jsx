@@ -26,9 +26,9 @@ export default function GridHeadline(props) {
 
 	return (
 		<div className="grid-headline">
-			<div className="grid-headliner grid-col-first">Team</div>
+			<div className="grid-headliner grid-col-first">{"<"}</div>
 			{headlineBoxes}
-			<div className="grid-headliner grid-col-last">Total</div>
+			<div className="grid-headliner grid-col-last">{">"}</div>
 		</div>
 	)
 }

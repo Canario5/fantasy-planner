@@ -16,23 +16,21 @@ import "./Grid.css"
 
 export default function Grid() {
 	const [dates, setDates] = useState([])
-	const [teamData, setTeamData] = useState(new Map())
+	const [teamNames, setTeamNames] = useState([])
 	const [schedule, setSchedule] = useState(new Map())
 
 	/* const [gridData, setGridData] = useState()
 	 */
 	/* 	const [num, setNum] = useState(false) */
+	const [isLoading, setIsLoading] = useState(true)
 	const [forceRefresh, setForceRefresh] = useState(false)
 	const [matchesPerDay, setMatchesPerDay] = useState(false)
 
-	const [gridEle, setGridEle] = useState(
-		Array(32).fill(<GridTeam schedule={[9999, 9999, 9999, 9999, 9999, 9999, 9999]} />)
-	)
+	const [gridEle, setGridEle] = useState(null)
 
 	console.log("healthy banana")
 
 	let gridData = 0
-	/* let gridEle = 0 */
 
 	useEffect(() => {
 		console.log("useEffect #1")
@@ -41,65 +39,33 @@ export default function Grid() {
 		if (dates && dates.length === 0) setDates(currentWeek)
 
 		const lastUpdate = localStorage.getItem("lastUpdate") || []
-		if (!currentWeek.includes(lastUpdate || forceRefresh)) setTeamData(getIds())
-
-		const storedTeamData =
-			new Map(JSON.parse(localStorage.getItem("teamNames"))) || new Map()
-
-		if (teamData.size === 0) {
-			console.log("load from localStorage")
-			setTeamData(storedTeamData)
-		}
-	}, [])
-
-	useEffect(() => {
-		console.log("useEffect #2")
-
-		const currentWeek = getDates()
-		if (dates && dates.length === 0) setDates(currentWeek)
-
-		const lastUpdate = localStorage.getItem("lastUpdate") || []
-		if (!currentWeek.includes(lastUpdate || forceRefresh)) setSchedule(getGameDates())
-
-		const storedSchedule =
-			new Map(JSON.parse(localStorage.getItem("schedule"))) || new Map()
-
-		if (schedule.size === 0) {
-			console.log("load from localStorage")
-			setSchedule(storedSchedule)
-		}
-	}, [])
-
-	/* useEffect(() => {
-		console.log("useEffect #1")
-
-		const currentWeek = getDates()
-		if (dates === 0) setDates(currentWeek)
-
-		const lastUpdate = localStorage.getItem("lastUpdate") || []
-		if (!currentWeek.includes(lastUpdate)) {
-			setTeamData(getIds())
-			setSchedule(getGameDates())
+		if (!currentWeek.includes(lastUpdate) || forceRefresh) {
+			getTeamNames()
+			getSchedule()
+			setIsLoading(false)
+			return
 		}
 
-		const storedTeamData =
+		const storedTeamNames =
 			new Map(JSON.parse(localStorage.getItem("teamNames"))) || new Map()
 		const storedSchedule =
 			new Map(JSON.parse(localStorage.getItem("schedule"))) || new Map()
-		if (teamData === 0 || schedule === 0) {
-			setTeamData(storedTeamData)
-			setSchedule(storedSchedule)
-		}
-	}, []) */
+
+		console.log("load from localStorage")
+		setTeamNames(storedTeamNames)
+		setSchedule(storedSchedule)
+		setIsLoading(false)
+	}, [forceRefresh])
 
 	useEffect(() => {
 		console.log("useEffect #3")
 
+		if (isLoading) return
+
 		let matchesPerDayTemp = []
 
-		/* 	if (teamData?.size > 0 && schedule?.size > 0) { */
 		console.log(schedule)
-		console.log(teamData)
+		console.log(teamNames)
 		console.log(dates)
 
 		const daysWithGame = dates.map((date) => {
@@ -109,7 +75,7 @@ export default function Grid() {
 		})
 
 		const tempMap = new Map()
-		teamData.forEach((value, key) => tempMap.set(key, new Array()))
+		teamNames.forEach((value, key) => tempMap.set(key, new Array()))
 		console.log(daysWithGame)
 
 		daysWithGame.map((day) => {
@@ -144,22 +110,80 @@ export default function Grid() {
 		setMatchesPerDay(matchesPerDayTemp)
 		console.log(tempMap)
 		gridData = tempMap
-		/* 	} */
 
 		if (gridData?.size > 0) {
 			console.log(gridData)
-			console.log(teamData)
+			console.log(teamNames)
 
 			let data = []
 			gridData.forEach((value, key) =>
 				data.push(
-					<GridTeam key={key} teamId={key} shortname={teamData.get(key)} schedule={value} />
+					<GridTeam
+						key={key}
+						teamId={key}
+						shortname={teamNames.get(key)}
+						schedule={value}
+					/>
 				)
 			)
 			console.log(data)
 			setGridEle(data)
 		}
-	}, [])
+	}, [schedule.size, dates[0]])
+
+	async function getSchedule() {
+		try {
+			const res = await fetch(
+				"https://statsapi.web.nhl.com/api/v1/schedule?startDate=2021-10-11&endDate=2022-07-01"
+			) // YYYY-MM-DD; Season 21-22 starts 12 October 2021
+
+			if (!res.ok) throw new Error(`This is an HTTP error: ${res.status}`)
+
+			const data = await res.json()
+
+			const matchDates = new Map(
+				data.dates.map((day) => {
+					const matchesPerDay = { home: [], away: [] }
+					day.games.forEach((gamePlayed) => {
+						matchesPerDay.home = [...matchesPerDay.home, gamePlayed.teams.home.team.id]
+						matchesPerDay.away = [...matchesPerDay.away, gamePlayed.teams.away.team.id]
+					})
+
+					return [day.date, matchesPerDay]
+				})
+			)
+
+			localStorage.setItem("schedule", JSON.stringify([...matchDates]))
+			localStorage.setItem("lastUpdate", format(new Date(), "yyyy-MM-dd"))
+
+			console.log(matchDates)
+			setSchedule(matchDates)
+		} catch (err) {
+			console.log(err.message)
+		}
+	}
+
+	async function getTeamNames() {
+		try {
+			const res = await fetch("https://statsapi.web.nhl.com/api/v1/teams")
+			if (!res.ok) throw new Error(`This is an HTTP error: ${res.status}`)
+
+			const data = await res.json()
+
+			const sortedNames = new Map(
+				data.teams
+					.map((teamData) => [teamData.id, teamData.abbreviation])
+					.sort((a, b) => String(a[1]).localeCompare(b[1]))
+			)
+
+			localStorage.setItem("teamNames", JSON.stringify([...sortedNames]))
+
+			console.log(sortedNames)
+			setTeamNames(sortedNames)
+		} catch (err) {
+			console.log(err.message)
+		}
+	}
 
 	return (
 		<div className="grid">
@@ -184,45 +208,4 @@ function getDates() {
 	return eachDayOfInterval({ start: monday, end: sunday }).map((day) =>
 		format(day, "yyyy-MM-dd")
 	)
-}
-
-async function getIds() {
-	const res = await fetch("https://statsapi.web.nhl.com/api/v1/teams")
-	const data = await res.json()
-
-	const iteData = data.teams.map((teamData) => {
-		return [teamData.id, teamData.abbreviation]
-	})
-
-	const sortedData = new Map(iteData.sort((a, b) => String(a[1]).localeCompare(b[1])))
-	localStorage.setItem("teamNames", JSON.stringify([...sortedData]))
-
-	console.log(sortedData)
-	return sortedData
-}
-
-async function getGameDates() {
-	// NHL Season 2021-22 startdate is 12 October 2021; end of regular season 1 may 2022; playoff end during june 2022
-	const res = await fetch(
-		"https://statsapi.web.nhl.com/api/v1/schedule?startDate=2021-10-11&endDate=2022-07-01"
-	) // YYYY-MM-DD
-	const data = await res.json()
-
-	const matchdates = new Map()
-	const newData = data.dates.map((day) => {
-		const home = []
-		const away = []
-		const matches = { home: home, away: away }
-		day.games.forEach((gamePlayed) => {
-			home.push(gamePlayed.teams.home.team.id)
-			away.push(gamePlayed.teams.away.team.id)
-		})
-
-		matchdates.set(day.date, matches)
-	})
-
-	localStorage.setItem("schedule", JSON.stringify([...matchdates]))
-	localStorage.setItem("lastUpdate", format(new Date(), "yyyy-MM-dd"))
-	console.log(matchdates)
-	return matchdates
 }

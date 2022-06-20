@@ -12,7 +12,7 @@ export default function CurrentDate(props) {
 			<div className="next-week">Next Week</div>
 			<div onClick={forceRefresh} className="current-date">{`Week ${props.week}`}</div>
 			<div className="add-day">Add Day</div>
-			<div className="add-week">Add Week</div>
+			<div className="add-week">Remove Day</div>
 		</div>
 	)
 }

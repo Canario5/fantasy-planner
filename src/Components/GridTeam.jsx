@@ -30,8 +30,8 @@ export default function GridTeam(props) {
 	<HeadlineBox className="headline-new" toggle={() => addBox(2)}></HeadlineBox> */
 
 	return (
-		<div className={`grid-team-row grid-${props.shortname} grid-col-first`}>
-			<div className={`grid-team-home grid-team grid-${props.shortname}`}>
+		<div className={`grid-team-row grid-${props.shortname}`}>
+			<div className={`grid-team-home grid-team grid-${props.shortname} grid-col-first`}>
 				<img
 					src={logoNhl[teamId]}
 					className={`grid-logo grid-${props.shortname}`}
