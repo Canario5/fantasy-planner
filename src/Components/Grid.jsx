@@ -19,18 +19,11 @@ export default function Grid() {
 	const [teamNames, setTeamNames] = useState([])
 	const [schedule, setSchedule] = useState(new Map())
 
-	/* const [gridData, setGridData] = useState()
-	 */
-	/* 	const [num, setNum] = useState(false) */
 	const [isLoading, setIsLoading] = useState(true)
 	const [forceRefresh, setForceRefresh] = useState(false)
-	const [matchesPerDay, setMatchesPerDay] = useState(false)
 
+	const [teamsWithGame, setTeamsWithGame] = useState([])
 	const [gridEle, setGridEle] = useState(null)
-
-	console.log("healthy banana")
-
-	let gridData = 0
 
 	useEffect(() => {
 		console.log("useEffect #1")
@@ -42,28 +35,21 @@ export default function Grid() {
 		if (!currentWeek.includes(lastUpdate) || forceRefresh) {
 			getTeamNames()
 			getSchedule()
-			setIsLoading(false)
-			return
+			return setIsLoading(false)
 		}
 
-		const storedTeamNames =
-			new Map(JSON.parse(localStorage.getItem("teamNames"))) || new Map()
-		const storedSchedule =
-			new Map(JSON.parse(localStorage.getItem("schedule"))) || new Map()
-
-		console.log("load from localStorage")
-		setTeamNames(storedTeamNames)
-		setSchedule(storedSchedule)
-		setIsLoading(false)
+		loadFromLocalStorage()
 	}, [forceRefresh])
 
 	useEffect(() => {
-		console.log("useEffect #3")
+		console.log("useEffect #2")
 
 		if (isLoading) return
 
-		let matchesPerDayTemp = []
+		generateElements()
+	}, [schedule.size, dates[0]])
 
+	function generateElements() {
 		console.log(schedule)
 		console.log(teamNames)
 		console.log(dates)
@@ -74,62 +60,49 @@ export default function Grid() {
 			return false
 		})
 
-		const tempMap = new Map()
-		teamNames.forEach((value, key) => tempMap.set(key, new Array()))
-		console.log(daysWithGame)
+		const gridData = new Map([...teamNames.keys()].map((teamId) => [teamId, new Array()]))
 
-		daysWithGame.map((day) => {
+		const teamsWithMatch = daysWithGame.map((day) => {
 			let matchCount = 0
-			// VALIDATE
-			if (day === false) {
-				tempMap.forEach((value, key) => tempMap.set(key, [...value, 9999]))
-				matchesPerDayTemp.push(matchCount)
-				return
+
+			if (!day) {
+				gridData.forEach((value, key) => gridData.set(key, [...value, 9999]))
+				return matchCount
 			}
 
-			// prettier-ignore
-			tempMap.forEach((value, key) => {
-				
-				if (day.home.indexOf(key) !== -1) {
-					tempMap.set(key, [...value, day.away[day.home.indexOf(key)]])
-					matchCount++
-					return
+			gridData.forEach((value, key) => {
+				if (day.home.includes(key)) {
+					gridData.set(key, [...value, day.away[day.home.indexOf(key)]])
+					return matchCount++
 				}
-				if (day.away.indexOf(key) !== -1) {
-					tempMap.set(key, [...value, day.home[day.away.indexOf(key)]*-1])
-					matchCount++
-					return
+				if (day.away.includes(key)) {
+					gridData.set(key, [...value, day.home[day.away.indexOf(key)] * -1])
+					return matchCount++
 				}
 
-				tempMap.set(key, [...value, 9999])
+				gridData.set(key, [...value, 9999])
 			})
 
-			if (matchCount !== 0) matchesPerDayTemp.push(matchCount)
-			matchCount = 0
+			return matchCount
 		})
-		setMatchesPerDay(matchesPerDayTemp)
-		console.log(tempMap)
-		gridData = tempMap
 
-		if (gridData?.size > 0) {
-			console.log(gridData)
-			console.log(teamNames)
+		setTeamsWithGame(teamsWithMatch)
 
-			let data = []
-			gridData.forEach((value, key) =>
-				data.push(
+		if (gridData.size > 0) {
+			const data = [...gridData].map(([homeTeamId, rivalIds]) => {
+				return (
 					<GridTeam
-						key={key}
-						teamId={key}
-						shortname={teamNames.get(key)}
-						schedule={value}
+						key={homeTeamId}
+						teamId={homeTeamId}
+						shortname={teamNames.get(homeTeamId)}
+						schedule={rivalIds}
 					/>
 				)
-			)
-			console.log(data)
+			})
+
 			setGridEle(data)
 		}
-	}, [schedule.size, dates[0]])
+	}
 
 	async function getSchedule() {
 		try {
@@ -156,7 +129,6 @@ export default function Grid() {
 			localStorage.setItem("schedule", JSON.stringify([...matchDates]))
 			localStorage.setItem("lastUpdate", format(new Date(), "yyyy-MM-dd"))
 
-			console.log(matchDates)
 			setSchedule(matchDates)
 		} catch (err) {
 			console.log(err.message)
@@ -178,11 +150,22 @@ export default function Grid() {
 
 			localStorage.setItem("teamNames", JSON.stringify([...sortedNames]))
 
-			console.log(sortedNames)
 			setTeamNames(sortedNames)
 		} catch (err) {
 			console.log(err.message)
 		}
+	}
+
+	function loadFromLocalStorage() {
+		const storedTeamNames =
+			new Map(JSON.parse(localStorage.getItem("teamNames"))) || new Map()
+		const storedSchedule =
+			new Map(JSON.parse(localStorage.getItem("schedule"))) || new Map()
+
+		console.log("load from localStorage")
+		setTeamNames(storedTeamNames)
+		setSchedule(storedSchedule)
+		setIsLoading(false)
 	}
 
 	return (
@@ -193,7 +176,7 @@ export default function Grid() {
 				setForceRefresh={setForceRefresh}
 			/>
 			<GridHeadline dates={dates}></GridHeadline>
-			<GridSubHeadline matchesPerDay={matchesPerDay}></GridSubHeadline>
+			<GridSubHeadline teamsWithGame={teamsWithGame}></GridSubHeadline>
 
 			{gridEle}
 		</div>
