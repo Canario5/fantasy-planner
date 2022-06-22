@@ -19,7 +19,7 @@
 
 .grid-team:hover {
 	background-color: darkslategray;
-	transition: ease-out 0.35s;
+	transition: ease-out 0.25s;
 }
 
 .grid-team:not(:first-child) {
