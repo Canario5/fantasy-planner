@@ -16,11 +16,11 @@ export default function CurrentDate(props) {
 				className="current-date"
 			>{`${props.month}`}</div>
 
-			<div onClick={props.addDay} className="remove-day">
+			<div onClick={props.removeDay} className="remove-day">
 				Remove Day
 			</div>
 
-			<div onClick={props.removeDay} className="add-day">
+			<div onClick={props.addDay} className="add-day">
 				Add Day
 			</div>
 		</div>
