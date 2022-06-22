@@ -1,11 +1,9 @@
 import "./GridSubHeadline.css"
 
-export default function GridSubHeadline({ teamsWithGame = [3, 4] }) {
-	/* if (!props.teamsWithGame) return */
+export default function GridSubHeadline(props) {
+	if (!props.teamsWithGame) return
 
-	console.log(teamsWithGame)
-
-	const subHeadline = teamsWithGame?.map((totalCount, i) => (
+	const subHeadline = props.teamsWithGame?.map((totalCount, i) => (
 		<div
 			onClick={() => console.log("Cambalam")}
 			key={i}
