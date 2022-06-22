@@ -14,8 +14,8 @@
 	position: relative;
 }
 
-.add-day,
-.add-week {
+.remove-day,
+.add-day {
 	display: none;
 }
 
@@ -38,18 +38,18 @@
 }
 
 .prev-week:hover {
-	border-radius: 5px 0px 0 0;
+	border-radius: 4px 0px 0 0;
 }
 
 .next-week:hover {
-	border-radius: 0px 5px 0 0;
+	border-radius: 0px 4px 0 0;
 }
 
 /* --- */
 
 @media only screen and (min-width: 600px) {
-	.add-day,
-	.add-week {
+	.remove-day,
+	.add-day {
 		display: initial;
 	}
 
@@ -64,11 +64,11 @@
 	}
 
 	.next-week:hover {
-		border-radius: initial;
+		border-radius: 4px 0px 0 0;
 	}
 
-	.add-week:hover {
-		border-radius: 0px 5px 0 0;
+	.add-day:hover {
+		border-radius: 0px 4px 0 0;
 	}
 }
 

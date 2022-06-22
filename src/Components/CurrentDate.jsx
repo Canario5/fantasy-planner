@@ -1,18 +1,28 @@
 import "./CurrentDate.css"
 
 export default function CurrentDate(props) {
-	function forceRefresh() {
-		props.setRefresh(true)
-		console.log(props.refresh)
-	}
-
 	return (
 		<div className="current-date-block">
-			<div className="prev-week">Prev Week</div>
-			<div className="next-week">Next Week</div>
-			<div onClick={forceRefresh} className="current-date">{`Week ${props.week}`}</div>
-			<div className="add-day">Add Day</div>
-			<div className="add-week">Remove Day</div>
+			<div onClick={props.prevWeek} className="prev-week">
+				Prev Week
+			</div>
+
+			<div onClick={props.nextWeek} className="next-week">
+				Next Week
+			</div>
+
+			<div
+				onClick={() => props.setForceRefresh(true)}
+				className="current-date"
+			>{`${props.month}`}</div>
+
+			<div onClick={props.addDay} className="remove-day">
+				Remove Day
+			</div>
+
+			<div onClick={props.removeDay} className="add-day">
+				Add Day
+			</div>
 		</div>
 	)
 }
