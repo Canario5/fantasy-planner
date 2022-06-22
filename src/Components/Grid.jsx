@@ -1,23 +1,25 @@
 import { useState, useEffect } from "react"
+
 import isMonday from "date-fns/isMonday"
 import previousMonday from "date-fns/previousMonday"
+import nextMonday from "date-fns/nextMonday"
 import format from "date-fns/format"
 import add from "date-fns/add"
 import eachDayOfInterval from "date-fns/eachDayOfInterval"
-import getWeek from "date-fns/getWeek"
+import startOfToday from "date-fns/startOfToday"
 
 import GridHeadline from "./GridHeadline"
 import GridSubHeadline from "./GridSubHeadline"
 import GridTeam from "./GridTeam"
 import CurrentDate from "../Components/CurrentDate"
-import TeamsNhl from "./TeamsNhl"
+
+import useApiData from "./useData"
 
 import "./Grid.css"
 
 export default function Grid() {
-	const [dates, setDates] = useState([])
-	const [teamNames, setTeamNames] = useState([])
-	const [schedule, setSchedule] = useState(new Map())
+	const [dates, setDates] = useState(getDates(startOfToday()))
+	const [loadApiData, setApiData, schedule, teamNames] = useApiData()
 
 	const [isLoading, setIsLoading] = useState(true)
 	const [forceRefresh, setForceRefresh] = useState(false)
@@ -28,13 +30,15 @@ export default function Grid() {
 	useEffect(() => {
 		console.log("useEffect #1")
 
-		const currentWeek = getDates()
-		if (dates && dates.length === 0) setDates(currentWeek)
+		const currentWeek = getDates(startOfToday())
+		if (dates && dates.length === 0) {
+			setDates(currentWeek)
+		}
 
 		const lastUpdate = localStorage.getItem("lastUpdate") || []
 		if (!currentWeek.includes(lastUpdate) || forceRefresh) {
-			getTeamNames()
-			getSchedule()
+			loadApiData()
+			setForceRefresh(false)
 			return setIsLoading(false)
 		}
 
@@ -47,18 +51,16 @@ export default function Grid() {
 		if (isLoading) return
 
 		generateElements()
-	}, [schedule.size, dates[0]])
+	}, [schedule.size, dates])
 
 	function generateElements() {
-		console.log(schedule)
-		console.log(teamNames)
-		console.log(dates)
+		console.log({ schedule })
+		console.log({ teamNames })
+		console.log({ dates })
 
-		const daysWithGame = dates.map((date) => {
-			if (schedule.has(date)) return schedule.get(date)
-
-			return false
-		})
+		const daysWithGame = dates.map((date) =>
+			schedule.has(date) ? schedule.get(date) : false
+		)
 
 		const gridData = new Map([...teamNames.keys()].map((teamId) => [teamId, new Array()]))
 
@@ -66,93 +68,41 @@ export default function Grid() {
 			let matchCount = 0
 
 			if (!day) {
-				gridData.forEach((value, key) => gridData.set(key, [...value, 9999]))
+				gridData.forEach((value, key) => gridData.set(key, [...value, false]))
 				return matchCount
 			}
 
-			gridData.forEach((value, key) => {
-				if (day.home.includes(key)) {
-					gridData.set(key, [...value, day.away[day.home.indexOf(key)]])
+			gridData.forEach((value, teamId) => {
+				if (day.home.includes(teamId)) {
+					gridData.set(teamId, [...value, day.away[day.home.indexOf(teamId)]]) //Pos value = game played at home
 					return matchCount++
 				}
-				if (day.away.includes(key)) {
-					gridData.set(key, [...value, day.home[day.away.indexOf(key)] * -1])
+				if (day.away.includes(teamId)) {
+					gridData.set(teamId, [...value, day.home[day.away.indexOf(teamId)] * -1]) //Negative value = team plays away
 					return matchCount++
 				}
 
-				gridData.set(key, [...value, 9999])
+				gridData.set(teamId, [...value, false]) //False value = team is not playing
 			})
 
 			return matchCount
 		})
 
 		setTeamsWithGame(teamsWithMatch)
-
+		console.log({ gridData })
 		if (gridData.size > 0) {
-			const data = [...gridData].map(([homeTeamId, rivalIds]) => {
+			const data = [...gridData].map(([homeTeamId, rivalsIds]) => {
 				return (
 					<GridTeam
 						key={homeTeamId}
 						teamId={homeTeamId}
 						shortname={teamNames.get(homeTeamId)}
-						schedule={rivalIds}
+						schedule={rivalsIds}
 					/>
 				)
 			})
-
+			console.log("GridEle", { data })
 			setGridEle(data)
-		}
-	}
-
-	async function getSchedule() {
-		try {
-			const res = await fetch(
-				"https://statsapi.web.nhl.com/api/v1/schedule?startDate=2021-10-11&endDate=2022-07-01"
-			) // YYYY-MM-DD; Season 21-22 starts 12 October 2021
-
-			if (!res.ok) throw new Error(`This is an HTTP error: ${res.status}`)
-
-			const data = await res.json()
-
-			const matchDates = new Map(
-				data.dates.map((day) => {
-					const matchesPerDay = { home: [], away: [] }
-					day.games.forEach((gamePlayed) => {
-						matchesPerDay.home = [...matchesPerDay.home, gamePlayed.teams.home.team.id]
-						matchesPerDay.away = [...matchesPerDay.away, gamePlayed.teams.away.team.id]
-					})
-
-					return [day.date, matchesPerDay]
-				})
-			)
-
-			localStorage.setItem("schedule", JSON.stringify([...matchDates]))
-			localStorage.setItem("lastUpdate", format(new Date(), "yyyy-MM-dd"))
-
-			setSchedule(matchDates)
-		} catch (err) {
-			console.log(err.message)
-		}
-	}
-
-	async function getTeamNames() {
-		try {
-			const res = await fetch("https://statsapi.web.nhl.com/api/v1/teams")
-			if (!res.ok) throw new Error(`This is an HTTP error: ${res.status}`)
-
-			const data = await res.json()
-
-			const sortedNames = new Map(
-				data.teams
-					.map((teamData) => [teamData.id, teamData.abbreviation])
-					.sort((a, b) => String(a[1]).localeCompare(b[1]))
-			)
-
-			localStorage.setItem("teamNames", JSON.stringify([...sortedNames]))
-
-			setTeamNames(sortedNames)
-		} catch (err) {
-			console.log(err.message)
 		}
 	}
 
@@ -163,19 +113,50 @@ export default function Grid() {
 			new Map(JSON.parse(localStorage.getItem("schedule"))) || new Map()
 
 		console.log("load from localStorage")
-		setTeamNames(storedTeamNames)
-		setSchedule(storedSchedule)
+		setApiData(storedTeamNames, storedSchedule)
 		setIsLoading(false)
+	}
+
+	function prevWeek() {
+		const currentMonday = new Date(dates[0])
+		setDates(getDates(previousMonday(currentMonday)))
+	}
+
+	function nextWeek() {
+		const currentMonday = new Date(dates[0])
+		setDates(getDates(nextMonday(currentMonday)))
+	}
+
+	const prevDay = () => {
+		const dayBefore = add(new Date(dates[0]), { days: -1 })
+		setDates([format(dayBefore, "yyyy-MM-dd"), ...dates.slice(0, -1)])
+	}
+
+	const nextDay = () => {
+		const dayAfter = add(new Date(dates.at(-1)), { days: 1 })
+		setDates([...dates.slice(1), format(dayAfter, "yyyy-MM-dd")])
+	}
+
+	const addDay = () => {
+		const dayAfter = add(new Date(dates.at(-1)), { days: 1 })
+		setDates([...dates, format(dayAfter, "yyyy-MM-dd")])
+	}
+
+	const removeDay = () => {
+		setDates(dates.slice(1))
 	}
 
 	return (
 		<div className="grid">
 			<CurrentDate
-				week={getWeek(new Date(dates?.[0]), { weekStartsOn: 1 })}
-				forceRefresh={forceRefresh}
+				month={dates?.length ? format(new Date(dates[0]), "MMMM") : "blank"}
 				setForceRefresh={setForceRefresh}
+				nextWeek={nextWeek}
+				prevWeek={prevWeek}
+				addDay={addDay}
+				removeDay={removeDay}
 			/>
-			<GridHeadline dates={dates}></GridHeadline>
+			<GridHeadline dates={dates} prevDay={prevDay} nextDay={nextDay}></GridHeadline>
 			<GridSubHeadline teamsWithGame={teamsWithGame}></GridSubHeadline>
 
 			{gridEle}
@@ -183,8 +164,7 @@ export default function Grid() {
 	)
 }
 
-function getDates() {
-	const today = new Date()
+function getDates(today) {
 	const monday = isMonday(today) ? today : previousMonday(today)
 	const sunday = add(monday, { days: 6 })
 
