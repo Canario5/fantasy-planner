@@ -28,6 +28,12 @@
 	transition: ease-out 0.35s;
 }
 
+.grid-subheadliner.grid-col-first,
+.grid-subheadliner.grid-col-last {
+	font-size: 0.625rem;
+	height: auto;
+}
+
 /* --- */
 
 @media only screen and (min-width: 600px) {
@@ -37,6 +43,12 @@
 
 	.grid-subheadliner {
 		padding: 0.125rem 0;
+	}
+
+	.grid-subheadliner.grid-col-first,
+	.grid-subheadliner.grid-col-last {
+		font-size: inherit;
+		height: inherit;
 	}
 }
 
