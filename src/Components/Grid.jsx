@@ -14,18 +14,20 @@ import GridTeam from "./GridTeam"
 import CurrentDate from "../Components/CurrentDate"
 
 import useApiData from "./useData"
+import loadFromLocalStorage from "./loadLocalStorage"
 
 import "./Grid.css"
 
 export default function Grid() {
 	const [dates, setDates] = useState(getDates(startOfToday()))
-	const [loadApiData, setApiData, schedule, teamNames] = useApiData()
 
 	const [isLoading, setIsLoading] = useState(true)
 	const [forceRefresh, setForceRefresh] = useState(false)
 
 	const [teamsWithGame, setTeamsWithGame] = useState([])
 	const [gridEle, setGridEle] = useState(null)
+
+	const [loadApiData, setApiData, schedule, teamNames] = useApiData()
 
 	useEffect(() => {
 		console.log("useEffect #1")
@@ -42,7 +44,9 @@ export default function Grid() {
 			return setIsLoading(false)
 		}
 
-		loadFromLocalStorage()
+		const [storedTeamNames, storedSchedule] = loadFromLocalStorage()
+		setApiData(storedTeamNames, storedSchedule)
+		setIsLoading(false)
 	}, [forceRefresh])
 
 	useEffect(() => {
@@ -104,17 +108,6 @@ export default function Grid() {
 			console.log("GridEle", { data })
 			setGridEle(data)
 		}
-	}
-
-	function loadFromLocalStorage() {
-		const storedTeamNames =
-			new Map(JSON.parse(localStorage.getItem("teamNames"))) || new Map()
-		const storedSchedule =
-			new Map(JSON.parse(localStorage.getItem("schedule"))) || new Map()
-
-		console.log("load from localStorage")
-		setApiData(storedTeamNames, storedSchedule)
-		setIsLoading(false)
 	}
 
 	function prevWeek() {
