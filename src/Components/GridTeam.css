@@ -37,15 +37,32 @@
 
 .grid-logo {
 	min-width: 32px;
+	max-width: 3em;
 	margin: 3px 0;
 }
 
 .grid-home {
 	background-color: #fcfcfc;
+	background-image: linear-gradient(to right, #56ab2f 0%, #a8e063 51%, #56ab2f 100%);
+}
+
+.grid-home,
+.grid-away {
+	transition: 0.5s;
+	background-size: 200% auto;
+	/* box-shadow: 0 0 5px #eee; */
+	border-radius: 4px;
 }
 
 .grid-away {
 	background-color: rgb(225 45 166 / 95%);
+	background-image: linear-gradient(to right, #e53935 0%, #e35d5b 51%, #e53935 100%);
+}
+
+.grid-home:hover,
+.grid-away:hover {
+	transition: 0.35s;
+	background-position: right center;
 }
 
 /* --- */
@@ -62,12 +79,12 @@
 	.grid-logo {
 		min-width: 36px;
 		margin: 5px 0;
+		filter: drop-shadow(2px 2px 1px rgba(247, 247, 247, 0.4));
 	}
 }
 
 @media only screen and (min-width: 905px) {
 	.grid-logo {
 		width: 40%;
-		filter: drop-shadow(2px 2px 1px rgba(247, 247, 247, 0.4));
 	}
 }
