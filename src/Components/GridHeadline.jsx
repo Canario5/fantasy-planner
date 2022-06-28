@@ -21,7 +21,7 @@ export default function GridHeadline(props) {
 			key={i}
 			className={`grid-headliner grid-col-${i} headline-box-${i}`}
 			/* onClick={props.handleHalfWidth} */
-			onContextMenu={props.handleHalfWidth}
+			onContextMenu={(event) => props.handleHalfWidth(event, i)}
 			style={
 				props.halfWidth[i]
 					? { width: "50%", transition: ".35s" }

@@ -155,21 +155,12 @@ export default function Grid() {
 		setDates(dates.slice(0, -1))
 	}
 
-	const columnPos = (event) => {
-		const headlineEle = [...document.querySelector(".grid-headline").children].slice(1, -1)
-		return headlineEle.indexOf(event.target)
-	}
-
 	/* useEffect(() => {
 		console.log(halfWidth)
 	}, [halfWidth]) */
 
-	const handleHalfWidth = (event) => {
-		if (event.type === "contextmenu") {
-			event.preventDefault()
-		}
-
-		const colPos = columnPos(event)
+	const handleHalfWidth = (event, colPos) => {
+		if (event.type === "contextmenu") event.preventDefault()
 
 		setHalfWidth((oldValue) => {
 			const newValues = [...oldValue]
