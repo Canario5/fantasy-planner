@@ -1,20 +1,9 @@
-import { useState } from "react"
-
 import format from "date-fns/format"
 
 import "./GridHeadline.css"
-import { el } from "date-fns/locale"
 
 export default function GridHeadline(props) {
 	if (!props.dates) return
-
-	/* const [halfWidth, setHalfWidth] = useState(false) */
-
-	/* 	const columnPos = (event) => {
-		const headlineEle = [...document.querySelector(".grid-headline").children].slice(1, -1)
-		console.log(headlineEle.indexOf(event.target))
-		return headlineEle.indexOf(event.target)
-	} */
 
 	const headlineBoxes = props.dates?.map((day, i) => (
 		<div
