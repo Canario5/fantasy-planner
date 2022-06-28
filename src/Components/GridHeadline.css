@@ -29,12 +29,14 @@
 	justify-content: center;
 	border-bottom: transparent 4px solid;
 	border-top: transparent 4px solid;
-	transition: all 0.5s ease;
+	transition: 0.5s ease;
+	transition-property: border-bottom, color;
 }
 .grid-headliner:hover {
 	border-bottom: #ef27a6 4px solid;
 	color: #ef27a6;
-	transition: all 0.3s ease-out;
+	transition: 0.25s ease-out;
+	transition-property: border-bottom, color;
 }
 
 /* --- */
