@@ -48,7 +48,7 @@
 
 .grid-home,
 .grid-away {
-	transition: 0.5s;
+	transition: background-position 0.5s;
 	background-size: 200% auto;
 	/* box-shadow: 0 0 5px #eee; */
 	border-radius: 4px;
@@ -61,7 +61,7 @@
 
 .grid-home:hover,
 .grid-away:hover {
-	transition: 0.35s;
+	transition: background-position 0.35s;
 	background-position: right center;
 }
 

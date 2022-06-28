@@ -21,11 +21,11 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	transition: all 0.5s ease;
+	transition: background-color 0.5s ease;
 }
 .grid-subheadliner:hover {
 	background-color: darkslategray;
-	transition: ease-out 0.35s;
+	transition: background-color ease-out 0.25s;
 }
 
 .grid-subheadliner.grid-col-first,
