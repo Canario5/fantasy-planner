@@ -1,8 +1,10 @@
 import { logoNhl } from "./Logos"
 import "./GridTeam.css"
+import extraStyles from "../Styles/ExtraStyles"
 
 export default function GridTeam(props) {
 	const { teamId, halfWidth } = props
+
 	let gamesPlayed = 0
 
 	const days = props.schedule.map((oneDay, i) => {
@@ -16,7 +18,7 @@ export default function GridTeam(props) {
 			<div
 				key={i}
 				className={`grid-team grid-col-${i} grid-${props.shortname} ${homeAway} `}
-				style={halfWidth[i] ? { width: "50%", transition: ".0s" } : {}}
+				style={halfWidth[i] ? extraStyles.HalfWidth : null}
 			>
 				{oneDay && (
 					<img

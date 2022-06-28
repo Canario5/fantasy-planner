@@ -1,6 +1,7 @@
 import format from "date-fns/format"
 
 import "./GridHeadline.css"
+import extraStyles from "../Styles/ExtraStyles"
 
 export default function GridHeadline(props) {
 	if (!props.dates) return
@@ -11,11 +12,7 @@ export default function GridHeadline(props) {
 			className={`grid-headliner grid-col-${i} headline-box-${i}`}
 			/* onClick={props.handleHalfWidth} */
 			onContextMenu={(event) => props.handleHalfWidth(event, i)}
-			style={
-				props.halfWidth[i]
-					? { width: "50%", transition: ".35s" }
-					: { width: "100%", transition: ".7s" }
-			}
+			style={props.halfWidth[i] ? extraStyles.HalfWidth : null}
 		>
 			{format(new Date(day), "d iii")}
 		</div>
