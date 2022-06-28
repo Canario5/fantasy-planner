@@ -27,7 +27,12 @@ export default function Grid() {
 	const [teamsWithGame, setTeamsWithGame] = useState([])
 	const [gridEle, setGridEle] = useState(null)
 
+	const [halfWidth, setHalfWidth] = useState(Array(7).fill(false))
+	const [overlay, setOverlay] = useState([])
+
 	const [loadApiData, setApiData, schedule, teamNames] = useApiData()
+
+	/* console.log(halfWidth) */
 
 	useEffect(() => {
 		console.log("useEffect #1")
@@ -36,6 +41,8 @@ export default function Grid() {
 		if (dates && dates.length === 0) {
 			setDates(currentWeek)
 		}
+
+		console.log(halfWidth)
 
 		const lastUpdate = localStorage.getItem("lastUpdate") || []
 		if (!currentWeek.includes(lastUpdate) || forceRefresh) {
@@ -55,7 +62,7 @@ export default function Grid() {
 		if (isLoading) return
 
 		generateElements()
-	}, [schedule.size, dates])
+	}, [schedule.size, dates, halfWidth])
 
 	function generateElements() {
 		console.log({ schedule })
@@ -65,6 +72,7 @@ export default function Grid() {
 		const daysWithGame = dates.map((date) =>
 			schedule.has(date) ? schedule.get(date) : false
 		)
+		console.log({ daysWithGame })
 
 		const gridData = new Map([...teamNames.keys()].map((teamId) => [teamId, new Array()]))
 
@@ -86,7 +94,7 @@ export default function Grid() {
 					return matchCount++
 				}
 
-				gridData.set(teamId, [...value, false]) //False value = team is not playing
+				gridData.set(teamId, [...value, false]) //False = team is not playing
 			})
 
 			return matchCount
@@ -94,40 +102,47 @@ export default function Grid() {
 
 		setTeamsWithGame(teamsWithMatch)
 		console.log({ gridData })
-		if (gridData.size > 0) {
-			const data = [...gridData].map(([homeTeamId, rivalsIds]) => {
-				return (
-					<GridTeam
-						key={homeTeamId}
-						teamId={homeTeamId}
-						shortname={teamNames.get(homeTeamId)}
-						schedule={rivalsIds}
-					/>
-				)
-			})
-			console.log("GridEle", { data })
-			setGridEle(data)
-		}
+
+		const data = [...gridData].map(([homeTeamId, rivalsIds]) => {
+			return (
+				<GridTeam
+					key={homeTeamId}
+					teamId={homeTeamId}
+					shortname={teamNames.get(homeTeamId)}
+					schedule={rivalsIds}
+					halfWidth={halfWidth}
+				/>
+			)
+		})
+		console.log("GridEle", { data })
+		setGridEle(data)
 	}
 
 	function prevWeek() {
 		const currentMonday = new Date(dates[0])
 		setDates(getDates(previousMonday(currentMonday)))
+		resetHalfWidth()
 	}
 
 	function nextWeek() {
 		const currentMonday = new Date(dates[0])
 		setDates(getDates(nextMonday(currentMonday)))
+		resetHalfWidth()
 	}
+
+	const resetHalfWidth = () => setHalfWidth(Array(7).fill(false))
 
 	const prevDay = () => {
 		const dayBefore = add(new Date(dates[0]), { days: -1 })
 		setDates([format(dayBefore, "yyyy-MM-dd"), ...dates.slice(0, -1)])
+		/* setHalfWidth(halfWidth.slice(0, -1)) */
+		setHalfWidth([false, ...halfWidth.slice(0, -1)])
 	}
 
 	const nextDay = () => {
 		const dayAfter = add(new Date(dates.at(-1)), { days: 1 })
 		setDates([...dates.slice(1), format(dayAfter, "yyyy-MM-dd")])
+		setHalfWidth([...halfWidth.slice(1), false])
 	}
 
 	const addDay = () => {
@@ -136,7 +151,32 @@ export default function Grid() {
 	}
 
 	const removeDay = () => {
-		setDates(dates.slice(1))
+		setHalfWidth(halfWidth.slice(0, -1))
+		setDates(dates.slice(0, -1))
+	}
+
+	const columnPos = (event) => {
+		const headlineEle = [...document.querySelector(".grid-headline").children].slice(1, -1)
+		return headlineEle.indexOf(event.target)
+	}
+
+	/* useEffect(() => {
+		console.log(halfWidth)
+	}, [halfWidth]) */
+
+	const handleHalfWidth = (event) => {
+		if (event.type === "contextmenu") {
+			event.preventDefault()
+		}
+
+		const colPos = columnPos(event)
+
+		setHalfWidth((oldValue) => {
+			const newValues = [...oldValue]
+			newValues[colPos] = !newValues[colPos]
+			console.log(newValues)
+			return newValues
+		})
 	}
 
 	return (
@@ -149,8 +189,17 @@ export default function Grid() {
 				addDay={addDay}
 				removeDay={removeDay}
 			/>
-			<GridHeadline dates={dates} prevDay={prevDay} nextDay={nextDay}></GridHeadline>
-			<GridSubHeadline teamsWithGame={teamsWithGame}></GridSubHeadline>
+			<GridHeadline
+				dates={dates}
+				prevDay={prevDay}
+				nextDay={nextDay}
+				handleHalfWidth={handleHalfWidth}
+				halfWidth={halfWidth}
+			></GridHeadline>
+			<GridSubHeadline
+				teamsWithGame={teamsWithGame}
+				halfWidth={halfWidth}
+			></GridSubHeadline>
 
 			{gridEle}
 		</div>

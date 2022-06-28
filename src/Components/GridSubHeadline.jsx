@@ -8,6 +8,11 @@ export default function GridSubHeadline(props) {
 			onClick={() => console.log("Cambalam")}
 			key={i}
 			className={`grid-subheadliner grid-col-${i} subheadline-${i}`}
+			style={
+				props.halfWidth[i]
+					? { width: "50%", transition: ".35s" }
+					: { width: "100%", transition: ".7s" }
+			}
 		>
 			{totalCount}
 		</div>
