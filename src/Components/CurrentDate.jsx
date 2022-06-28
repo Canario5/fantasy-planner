@@ -12,6 +12,7 @@ export default function CurrentDate(props) {
 			</div>
 
 			<div
+				title={`Refresh data from APIs; Data from ${localStorage.getItem("lastUpdate")}`}
 				onClick={() => props.setForceRefresh(true)}
 				className="current-date"
 			>{`${props.month}`}</div>
