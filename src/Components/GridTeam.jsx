@@ -3,26 +3,26 @@ import "./GridTeam.css"
 import extraStyles from "../Styles/ExtraStyles"
 
 export default function GridTeam(props) {
-	const { teamId, halfWidth } = props
+	const { teamId, showHalfWidth } = props
 
-	let gamesPlayed = 0
+	/* let gamesPlayed = 0 */
 
-	const days = props.schedule.map((oneDay, i) => {
+	const days = props.schedule.map((day, i) => {
 		let homeAway = ""
-		if (oneDay) gamesPlayed++
+		/* if (day) gamesPlayed++ */
 
-		if (oneDay > 0) homeAway = `grid-home`
-		if (oneDay < 0) homeAway = `grid-away`
+		if (day > 0) homeAway = `grid-home`
+		if (day < 0) homeAway = `grid-away`
 
 		return (
 			<div
 				key={i}
 				className={`grid-team grid-col-${i} grid-${props.shortname} ${homeAway} `}
-				style={halfWidth[i] ? extraStyles.HalfWidth : null}
+				style={showHalfWidth[i] ? extraStyles.HalfWidth : null}
 			>
-				{oneDay && (
+				{day && (
 					<img
-						src={logoNhl[Math.abs(oneDay)]}
+						src={logoNhl[Math.abs(day)]}
 						className={`grid-logo grid-${props.shortname}`}
 					/>
 				)}
@@ -42,7 +42,7 @@ export default function GridTeam(props) {
 			</div>
 			{days}
 			<div className={`grid-total grid-team grid-${props.shortname} grid-col-last`}>
-				{gamesPlayed}
+				{props.gamesPlayed ? props.gamesPlayed : 0}
 			</div>
 		</div>
 	)
