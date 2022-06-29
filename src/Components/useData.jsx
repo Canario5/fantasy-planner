@@ -3,12 +3,13 @@ import format from "date-fns/format"
 
 export default function useApiData() {
 	const [teamNames, setTeamNames] = useState([])
+	const [teamNamesDefault, setTeamNamesDefault] = useState([])
 	const [schedule, setSchedule] = useState(new Map())
 
 	async function getSchedule() {
 		try {
 			const res = await fetch(
-				"https://statsapi.web.nhl.com/api/v1/schedule?startDate=2021-10-11&endDate=2022-07-01"
+				"https://statsapi.web.nhl.com/api/v1/schedule?startDate=2021-10-11&endDate=2022-07-31"
 			) // YYYY-MM-DD; Season 21-22 starts 12 October 2021
 
 			if (!res.ok) throw new Error(`This is an HTTP error: ${res.status}`)
@@ -45,13 +46,14 @@ export default function useApiData() {
 
 			const sortedNames = new Map(
 				data.teams
-					.map((teamData) => [teamData.id, teamData.abbreviation])
+					.map((teamData) => [teamData.id, teamData.shortName])
 					.sort((a, b) => a[1].localeCompare(b[1], "en"))
 			)
 
 			localStorage.setItem("teamNames", JSON.stringify([...sortedNames]))
 
 			setTeamNames(sortedNames)
+			setTeamNamesDefault(sortedNames)
 		} catch (err) {
 			console.log(err.message)
 		}
@@ -64,8 +66,9 @@ export default function useApiData() {
 
 	function setApiData(storedTeamNames, storedSchedule) {
 		setTeamNames(storedTeamNames)
+		setTeamNamesDefault(storedTeamNames)
 		setSchedule(storedSchedule)
 	}
 
-	return [loadApiData, setApiData, schedule, teamNames]
+	return [loadApiData, setApiData, setTeamNames, schedule, teamNames, teamNamesDefault]
 }

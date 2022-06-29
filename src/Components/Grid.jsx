@@ -19,20 +19,19 @@ import loadFromLocalStorage from "./loadLocalStorage"
 import "./Grid.css"
 
 export default function Grid() {
+	const [loadApiData, setApiData, setTeamNames, schedule, teamNames, teamNamesDefault] =
+		useApiData()
 	const [dates, setDates] = useState(getDates(startOfToday()))
 
 	const [isLoading, setIsLoading] = useState(true)
 	const [forceRefresh, setForceRefresh] = useState(false)
 
 	const [teamsWithGame, setTeamsWithGame] = useState([])
+	const [gridTable, setGridTable] = useState(null)
 	const [gridEle, setGridEle] = useState(null)
 
 	const [halfWidth, setHalfWidth] = useState(Array(7).fill(false))
-	const [overlay, setOverlay] = useState([])
-
-	const [loadApiData, setApiData, schedule, teamNames] = useApiData()
-
-	/* console.log(halfWidth) */
+	/* const [overlay, setOverlay] = useState([]) */
 
 	useEffect(() => {
 		console.log("useEffect #1")
@@ -41,8 +40,6 @@ export default function Grid() {
 		if (dates && dates.length === 0) {
 			setDates(currentWeek)
 		}
-
-		console.log(halfWidth)
 
 		const lastUpdate = localStorage.getItem("lastUpdate") || []
 		if (!currentWeek.includes(lastUpdate) || forceRefresh) {
@@ -62,11 +59,12 @@ export default function Grid() {
 		if (isLoading) return
 
 		generateElements()
-	}, [schedule.size, dates, halfWidth])
+	}, [schedule.size, dates, halfWidth, teamNames])
 
 	function generateElements() {
 		console.log({ schedule })
 		console.log({ teamNames })
+		console.log({ teamNamesDefault })
 		console.log({ dates })
 
 		const daysWithGame = dates.map((date) =>
@@ -101,33 +99,39 @@ export default function Grid() {
 		})
 
 		setTeamsWithGame(teamsWithMatch)
+		setGridTable(gridData)
 		console.log({ gridData })
 
-		const data = [...gridData].map(([homeTeamId, rivalsIds]) => {
+		const genElements = [...gridData].map(([homeTeamId, rivalsIds]) => {
 			return (
 				<GridTeam
 					key={homeTeamId}
 					teamId={homeTeamId}
-					shortname={teamNames.get(homeTeamId)}
+					shortname={teamNamesDefault.get(homeTeamId)}
 					schedule={rivalsIds}
-					halfWidth={halfWidth}
+					gamesPlayed={rivalsIds.reduce((matchCount, match) => {
+						return matchCount + (match ? 1 : 0)
+					}, 0)}
+					showHalfWidth={halfWidth}
 				/>
 			)
 		})
-		console.log("GridEle", { data })
-		setGridEle(data)
+		console.log({ genElements })
+		setGridEle(genElements)
 	}
 
 	function prevWeek() {
 		const currentMonday = new Date(dates[0])
 		setDates(getDates(previousMonday(currentMonday)))
 		resetHalfWidth()
+		setTeamNames(teamNamesDefault)
 	}
 
 	function nextWeek() {
 		const currentMonday = new Date(dates[0])
 		setDates(getDates(nextMonday(currentMonday)))
 		resetHalfWidth()
+		setTeamNames(teamNamesDefault)
 	}
 
 	const resetHalfWidth = () => setHalfWidth(Array(7).fill(false))
@@ -135,7 +139,6 @@ export default function Grid() {
 	const prevDay = () => {
 		const dayBefore = add(new Date(dates[0]), { days: -1 })
 		setDates([format(dayBefore, "yyyy-MM-dd"), ...dates.slice(0, -1)])
-		/* setHalfWidth(halfWidth.slice(0, -1)) */
 		setHalfWidth([false, ...halfWidth.slice(0, -1)])
 	}
 
@@ -155,10 +158,6 @@ export default function Grid() {
 		setDates(dates.slice(0, -1))
 	}
 
-	/* useEffect(() => {
-		console.log(halfWidth)
-	}, [halfWidth]) */
-
 	const handleHalfWidth = (event, colPos) => {
 		if (event.type === "contextmenu") event.preventDefault()
 
@@ -168,6 +167,29 @@ export default function Grid() {
 			console.log(newValues)
 			return newValues
 		})
+	}
+
+	const sortTeamsNames = () => setTeamNames(new Map([...teamNames].reverse()))
+
+	const sortDay = (colPos) => {
+		let teamsWithGame = []
+		let teamsNoGame = []
+
+		teamNamesDefault.forEach((_value, key) => {
+			const rival = gridTable.get(key)[colPos]
+
+			rival
+				? (teamsWithGame = [...teamsWithGame, [key, rival]])
+				: (teamsNoGame = [...teamsNoGame, [key, rival]])
+		})
+
+		const sortedRivals = [...teamsWithGame, ...teamsNoGame]
+
+		if (JSON.stringify([...teamNames]) === JSON.stringify(sortedRivals))
+			return setTeamNames(teamNamesDefault)
+		/* return setTeamNames(new Map([...[...teamsNoGame.reverse()], ...teamsWithGame])) */
+
+		setTeamNames(new Map(sortedRivals))
 	}
 
 	return (
@@ -185,11 +207,13 @@ export default function Grid() {
 				prevDay={prevDay}
 				nextDay={nextDay}
 				handleHalfWidth={handleHalfWidth}
-				halfWidth={halfWidth}
+				showHalfWidth={halfWidth}
 			></GridHeadline>
 			<GridSubHeadline
 				teamsWithGame={teamsWithGame}
-				halfWidth={halfWidth}
+				showHalfWidth={halfWidth}
+				sortDay={sortDay}
+				sortTeamsNames={sortTeamsNames}
 			></GridSubHeadline>
 
 			{gridEle}

@@ -6,10 +6,10 @@ export default function GridSubHeadline(props) {
 
 	const subHeadline = props.teamsWithGame?.map((totalCount, i) => (
 		<div
-			onClick={() => console.log("Cambalam")}
+			onClick={() => props.sortDay(i)}
 			key={i}
 			className={`grid-subheadliner grid-col-${i} subheadline-${i}`}
-			style={props.halfWidth[i] ? extraStyles.HalfWidth : null}
+			style={props.showHalfWidth[i] ? extraStyles.HalfWidth : null}
 		>
 			{totalCount}
 		</div>
@@ -17,7 +17,9 @@ export default function GridSubHeadline(props) {
 
 	return (
 		<div className="grid-subheadline">
-			<div className="grid-subheadliner grid-col-first">Team</div>
+			<div className="grid-subheadliner grid-col-first" onClick={props.sortTeamsNames}>
+				Team
+			</div>
 			{subHeadline}
 			<div className="grid-subheadliner grid-col-last">Tot</div>
 		</div>
