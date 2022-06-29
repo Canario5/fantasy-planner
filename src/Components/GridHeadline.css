@@ -43,8 +43,12 @@
 
 @media only screen and (min-width: 600px) {
 	.grid-headline {
-		font-size: 0.75rem;
+		font-size: 0.85rem;
 		gap: 2px;
+	}
+
+	.grid-headliner {
+		padding: 0.35rem 0;
 	}
 }
 

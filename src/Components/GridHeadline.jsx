@@ -10,9 +10,8 @@ export default function GridHeadline(props) {
 		<div
 			key={i}
 			className={`grid-headliner grid-col-${i} headline-box-${i}`}
-			/* onClick={props.handleHalfWidth} */
 			onContextMenu={(event) => props.handleHalfWidth(event, i)}
-			style={props.halfWidth[i] ? extraStyles.HalfWidth : null}
+			style={props.showHalfWidth[i] ? extraStyles.HalfWidth : null}
 		>
 			{format(new Date(day), "d iii")}
 		</div>
