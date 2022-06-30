@@ -17,7 +17,7 @@ export default function GridSubHeadline(props) {
 
 	return (
 		<div className="grid-subheadline">
-			<div className="grid-subheadliner grid-col-first" onClick={props.sortTeamsNames}>
+			<div className="grid-subheadliner grid-col-first" onClick={props.sortTeamNames}>
 				Team
 			</div>
 			{subHeadline}

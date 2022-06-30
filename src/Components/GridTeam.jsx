@@ -5,7 +5,7 @@ import extraStyles from "../Styles/ExtraStyles"
 export default function GridTeam(props) {
 	const { teamId, showHalfWidth } = props
 
-	const days = props.schedule.map((day, i) => {
+	const days = props.rivalsIds.map((day, i) => {
 		return (
 			<div
 				key={i}
