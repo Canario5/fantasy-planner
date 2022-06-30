@@ -26,9 +26,11 @@ export default function Grid() {
 	const [isLoading, setIsLoading] = useState(true)
 	const [forceRefresh, setForceRefresh] = useState(false)
 
-	const [teamsWithGame, setTeamsWithGame] = useState([])
+	const [matchesPerDay, setMatchesPerDay] = useState([])
+	const [matchesPerTeam, setMatchesPerTeam] = useState([])
+
 	const [gridTable, setGridTable] = useState(null)
-	const [gridEle, setGridEle] = useState(null)
+	/* const [gridEle, setGridEle] = useState(null) */
 
 	const [halfWidth, setHalfWidth] = useState(Array(7).fill(false))
 	/* const [overlay, setOverlay] = useState([]) */
@@ -74,9 +76,10 @@ export default function Grid() {
 
 		const gridData = new Map([...teamNames.keys()].map((teamId) => [teamId, new Array()]))
 
-		daysWithGame.forEach((day) => {
+		const matchCountPerDay = daysWithGame.map((day, i) => {
 			if (!day) {
-				return gridData.forEach((value, key) => gridData.set(key, [...value, false]))
+				gridData.forEach((value, key) => gridData.set(key, [...value, false]))
+				return 0
 			}
 
 			gridData.forEach((value, teamId) => {
@@ -89,39 +92,44 @@ export default function Grid() {
 
 				gridData.set(teamId, [...value, false]) //False = team is not playing
 			})
-		})
 
-		const matchCountPerDay = daysWithGame.reduce((matchSumPerDay, day, i) => {
-			if (!day) return [...matchSumPerDay, 0]
-
-			const tempCountPerDay = [...gridData.values()].reduce((sumGamePerDay, team) => {
-				return sumGamePerDay + (team[i] ? 1 : 0)
+			const tempCountPerDay = [...gridData.values()].reduce((sumPerDay, team) => {
+				return sumPerDay + (team[i] ? 1 : 0)
 			}, 0)
 
-			return [...matchSumPerDay, tempCountPerDay]
-		}, [])
+			return tempCountPerDay
+		})
+
+		const matchCountPerTeam = [...gridData.values()].map((rivals) => {
+			const tempCountPerTeam = rivals.reduce((sumPerTeam, rival) => {
+				return sumPerTeam + (rival ? 1 : 0)
+			}, 0)
+			return tempCountPerTeam
+		})
+
+		console.log(matchCountPerTeam)
 
 		console.log({ matchCountPerDay })
 		console.log({ gridData })
-		setTeamsWithGame(matchCountPerDay)
+
+		setMatchesPerDay(matchCountPerDay)
+		setMatchesPerTeam(matchCountPerTeam)
 		setGridTable(gridData)
 
-		const genElements = [...gridData].map(([homeTeamId, rivalsIds]) => {
+		/* const genElements = [...gridData].map(([homeTeamId, rivalsIds], i) => {
 			return (
 				<GridTeam
 					key={homeTeamId}
 					teamId={homeTeamId}
 					shortname={teamNamesDefault.get(homeTeamId)}
 					rivalsIds={rivalsIds}
-					gamesPlayed={rivalsIds.reduce((matchCount, match) => {
-						return matchCount + (match ? 1 : 0)
-					}, 0)}
+					gamesPlayed={matchesPerTeam[i]}
 					showHalfWidth={halfWidth}
 				/>
 			)
 		})
 
-		setGridEle(genElements)
+		setGridEle(genElements) */
 	}
 
 	function prevWeek() {
@@ -168,7 +176,6 @@ export default function Grid() {
 		setHalfWidth((oldValue) => {
 			const newValues = [...oldValue]
 			newValues[colPos] = !newValues[colPos]
-			console.log(newValues)
 			return newValues
 		})
 	}
@@ -196,6 +203,21 @@ export default function Grid() {
 		setTeamNames(new Map(sortedRivals))
 	}
 
+	const genElements = !gridTable
+		? ""
+		: [...gridTable].map(([homeTeamId, rivalsIds], i) => {
+				return (
+					<GridTeam
+						key={homeTeamId}
+						teamId={homeTeamId}
+						shortname={teamNamesDefault.get(homeTeamId)}
+						rivalsIds={rivalsIds}
+						gamesPlayed={matchesPerTeam[i]}
+						showHalfWidth={halfWidth}
+					/>
+				)
+		  })
+
 	return (
 		<div className="grid">
 			<CurrentDate
@@ -214,13 +236,13 @@ export default function Grid() {
 				showHalfWidth={halfWidth}
 			></GridHeadline>
 			<GridSubHeadline
-				teamsWithGame={teamsWithGame}
+				teamsWithGame={matchesPerDay}
 				showHalfWidth={halfWidth}
 				sortDay={sortDay}
 				sortTeamNames={sortTeamNames}
 			></GridSubHeadline>
 
-			{gridEle}
+			{genElements}
 		</div>
 	)
 }
