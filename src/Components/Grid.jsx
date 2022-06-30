@@ -28,9 +28,7 @@ export default function Grid() {
 
 	const [matchesPerDay, setMatchesPerDay] = useState([])
 	const [matchesPerTeam, setMatchesPerTeam] = useState([])
-
 	const [gridTable, setGridTable] = useState(null)
-	/* const [gridEle, setGridEle] = useState(null) */
 
 	const [halfWidth, setHalfWidth] = useState(Array(7).fill(false))
 	/* const [overlay, setOverlay] = useState([]) */
@@ -115,21 +113,6 @@ export default function Grid() {
 		setMatchesPerDay(matchCountPerDay)
 		setMatchesPerTeam(matchCountPerTeam)
 		setGridTable(gridData)
-
-		/* const genElements = [...gridData].map(([homeTeamId, rivalsIds], i) => {
-			return (
-				<GridTeam
-					key={homeTeamId}
-					teamId={homeTeamId}
-					shortname={teamNamesDefault.get(homeTeamId)}
-					rivalsIds={rivalsIds}
-					gamesPlayed={matchesPerTeam[i]}
-					showHalfWidth={halfWidth}
-				/>
-			)
-		})
-
-		setGridEle(genElements) */
 	}
 
 	function prevWeek() {
@@ -198,7 +181,6 @@ export default function Grid() {
 
 		if (JSON.stringify([...teamNames]) === JSON.stringify(sortedRivals))
 			return setTeamNames(teamNamesDefault)
-		/* return setTeamNames(new Map([...[...teamsNoGame.reverse()], ...teamsWithGame])) */
 
 		setTeamNames(new Map(sortedRivals))
 	}
