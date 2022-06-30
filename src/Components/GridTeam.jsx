@@ -5,19 +5,13 @@ import extraStyles from "../Styles/ExtraStyles"
 export default function GridTeam(props) {
 	const { teamId, showHalfWidth } = props
 
-	/* let gamesPlayed = 0 */
-
 	const days = props.schedule.map((day, i) => {
-		let homeAway = ""
-		/* if (day) gamesPlayed++ */
-
-		if (day > 0) homeAway = `grid-home`
-		if (day < 0) homeAway = `grid-away`
-
 		return (
 			<div
 				key={i}
-				className={`grid-team grid-col-${i} grid-${props.shortname} ${homeAway} `}
+				className={`grid-team grid-col-${i} grid-${props.shortname} ${
+					(day > 0 && `grid-home`) || (day < 0 && `grid-away`)
+				} `}
 				style={showHalfWidth[i] ? extraStyles.HalfWidth : null}
 			>
 				{day && (
