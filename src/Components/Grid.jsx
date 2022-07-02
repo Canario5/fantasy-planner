@@ -149,6 +149,7 @@ export default function Grid() {
 	}
 
 	const removeDay = () => {
+		console.log(halfWidth)
 		setHalfWidth(halfWidth.slice(0, -1))
 		setDates(dates.slice(0, -1))
 	}
@@ -163,26 +164,64 @@ export default function Grid() {
 		})
 	}
 
-	const sortTeamNames = () => setTeamNames(new Map([...teamNames].reverse()))
+	const sortTeamNames = () => {
+		if (
+			JSON.stringify([...gridTable.keys()]) === JSON.stringify([...teamNamesDefault.keys()])
+		) {
+			return setTeamNames(new Map([...teamNamesDefault].reverse()))
+		}
+
+		setTeamNames(new Map([...teamNamesDefault]))
+	}
 
 	const sortDay = (colPos) => {
-		let teamsWithGame = []
-		let teamsNoGame = []
+		const gridTableArray = [...teamNamesDefault.keys()].map((id) => {
+			const rival = gridTable.get(id)[colPos]
 
-		teamNamesDefault.forEach((_value, key) => {
-			const rival = gridTable.get(key)[colPos]
-
-			rival
-				? (teamsWithGame = [...teamsWithGame, [key, rival]])
-				: (teamsNoGame = [...teamsNoGame, [key, rival]])
+			return [id, rival ? true : false]
 		})
 
-		const sortedRivals = [...teamsWithGame, ...teamsNoGame]
+		const sortedRivals = gridTableArray.sort((a, b) => b[1] - a[1])
 
-		if (JSON.stringify([...teamNames]) === JSON.stringify(sortedRivals))
-			return setTeamNames(teamNamesDefault)
+		if (
+			JSON.stringify([...gridTable.keys()]) ===
+			JSON.stringify(sortedRivals.map((x) => x[0]))
+		) {
+			return setTeamNames(
+				new Map(
+					sortedRivals
+						.reverse()
+						.sort((a, b) => b[1] - a[1])
+						.reverse()
+				)
+			)
+		}
 
 		setTeamNames(new Map(sortedRivals))
+	}
+
+	const sortTotal = () => {
+		const gridTableArray = [...teamNamesDefault.keys()].map((id) => {
+			const valuePos = [...gridTable.keys()].indexOf(id)
+			return [id, matchesPerTeam[valuePos]]
+		})
+
+		const newlySorted = gridTableArray.sort((a, b) => b[1] - a[1])
+
+		if (
+			JSON.stringify([...gridTable.keys()]) === JSON.stringify(newlySorted.map((x) => x[0]))
+		) {
+			return setTeamNames(
+				new Map(
+					newlySorted
+						.reverse()
+						.sort((a, b) => b[1] - a[1])
+						.reverse()
+				)
+			)
+		}
+
+		setTeamNames(new Map(newlySorted))
 	}
 
 	const genElements = !gridTable
@@ -222,6 +261,7 @@ export default function Grid() {
 				showHalfWidth={halfWidth}
 				sortDay={sortDay}
 				sortTeamNames={sortTeamNames}
+				sortTotal={sortTotal}
 			></GridSubHeadline>
 
 			{genElements}

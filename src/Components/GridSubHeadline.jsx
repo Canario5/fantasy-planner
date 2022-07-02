@@ -21,7 +21,9 @@ export default function GridSubHeadline(props) {
 				Team
 			</div>
 			{subHeadline}
-			<div className="grid-subheadliner grid-col-last">Tot</div>
+			<div className="grid-subheadliner grid-col-last" onClick={props.sortTotal}>
+				Tot
+			</div>
 		</div>
 	)
 }
