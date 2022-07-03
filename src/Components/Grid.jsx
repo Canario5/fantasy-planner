@@ -144,12 +144,12 @@ export default function Grid() {
 	}
 
 	const addDay = () => {
+		setHalfWidth([...halfWidth, false])
 		const dayAfter = add(new Date(dates.at(-1)), { days: 1 })
 		setDates([...dates, format(dayAfter, "yyyy-MM-dd")])
 	}
 
 	const removeDay = () => {
-		console.log(halfWidth)
 		setHalfWidth(halfWidth.slice(0, -1))
 		setDates(dates.slice(0, -1))
 	}
