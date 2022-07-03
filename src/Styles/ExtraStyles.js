@@ -3,8 +3,8 @@ const HalfWidth = {
 	filter: "saturate(40%) brightness(0.85)",
 
 	/* filter: "hue-rotate(300deg)", */
-	/* background: "rgba(0, 0, 0, .75)", */
-	/* transition: "width .15s", */
+	/* transition: ".15s",
+	transitionDelay: "0.25s", */
 }
 
 const FullWidth = {

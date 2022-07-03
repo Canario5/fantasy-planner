@@ -155,7 +155,17 @@ export default function Grid() {
 	}
 
 	const handleHalfWidth = (event, colPos) => {
-		if (event.type === "contextmenu") event.preventDefault()
+		if (event.type === "contextmenu") {
+			event.preventDefault()
+
+			const colElements = [...document.querySelectorAll(`.grid-col-${colPos}`)]
+			colElements.forEach((el) => {
+				el.ontransitionend = () => {
+					el.classList.remove("column-transition")
+				}
+				el.classList.add("column-transition")
+			})
+		}
 
 		setHalfWidth((oldValue) => {
 			const newValues = [...oldValue]
