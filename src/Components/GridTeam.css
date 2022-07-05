@@ -19,7 +19,7 @@
 
 .grid-team:hover {
 	background-color: darkslategray;
-	transition: ease-out 0.25s;
+	transition: background-color ease-out 0.25s 0.05s;
 }
 
 .grid-team:not(:first-child) {
@@ -39,6 +39,8 @@
 	min-width: 32px;
 	max-width: 3em;
 	margin: 3px 0;
+
+	transition: 1s;
 }
 
 .grid-home {
@@ -61,8 +63,24 @@
 
 .grid-home:hover,
 .grid-away:hover {
-	transition: background-position 0.35s;
+	transition: background-position 0.5s 0.25s;
 	background-position: right center;
+}
+
+.grid-home:hover .grid-logo,
+.grid-away:hover .grid-logo {
+	z-index: 2;
+	transform: rotateY(360deg) scale3d(1.5, 1.5, 1.5);
+	transition: transform 1.25s 0.25s;
+}
+
+/* .big-team-info {
+	background-color: #31353c;
+	padding: 1em 0;
+} */
+
+.big-team-info > span {
+	display: block;
 }
 
 /* --- */

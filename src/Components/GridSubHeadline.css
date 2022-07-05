@@ -21,11 +21,9 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	transition: background-color 0.4s ease;
 }
 .grid-subheadliner:hover {
 	background-color: darkslategray;
-	transition: background-color ease-out 0.25s;
 }
 
 .grid-subheadliner.grid-col-first,

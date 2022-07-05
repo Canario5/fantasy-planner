@@ -240,6 +240,7 @@ export default function Grid() {
 				return (
 					<GridTeam
 						key={homeTeamId}
+						index={i}
 						teamId={homeTeamId}
 						shortname={teamNamesDefault.get(homeTeamId)}
 						rivalsIds={rivalsIds}
