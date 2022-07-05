@@ -64,7 +64,7 @@
 	}
 
 	.next-week:hover {
-		border-radius: 4px 0px 0 0;
+		border-radius: initial;
 	}
 
 	.add-day:hover {
