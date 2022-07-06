@@ -31,11 +31,9 @@ export default function Grid() {
 	const [gridTable, setGridTable] = useState(null)
 
 	const [halfWidth, setHalfWidth] = useState(Array(7).fill(false))
-	/* const [overlay, setOverlay] = useState([]) */
+	const [showBigTeamInfo, setShowBigTeamInfo] = useState(Array(32).fill(false))
 
 	useEffect(() => {
-		console.log("useEffect #1")
-
 		const currentWeek = getDates(startOfToday())
 		if (dates && dates.length === 0) {
 			setDates(currentWeek)
@@ -54,27 +52,17 @@ export default function Grid() {
 	}, [forceRefresh])
 
 	useEffect(() => {
-		console.log("useEffect #2")
-
 		if (isLoading) return
 
 		generateElements()
 	}, [schedule.size, dates, halfWidth, teamNames])
 
 	function generateElements() {
-		console.log({ schedule })
-		console.log({ teamNames })
-		console.log({ teamNamesDefault })
-		console.log({ dates })
-
-		const daysWithGame = dates.map((date) =>
-			schedule.has(date) ? schedule.get(date) : false
-		)
-		console.log({ daysWithGame })
+		const days = dates.map((date) => (schedule.has(date) ? schedule.get(date) : false))
 
 		const gridData = new Map([...teamNames.keys()].map((teamId) => [teamId, new Array()]))
 
-		const matchCountPerDay = daysWithGame.map((day, i) => {
+		const matchCountPerDay = days.map((day, i) => {
 			if (!day) {
 				gridData.forEach((value, key) => gridData.set(key, [...value, false]))
 				return 0
@@ -105,11 +93,6 @@ export default function Grid() {
 			return tempCountPerTeam
 		})
 
-		console.log(matchCountPerTeam)
-
-		console.log({ matchCountPerDay })
-		console.log({ gridData })
-
 		setMatchesPerDay(matchCountPerDay)
 		setMatchesPerTeam(matchCountPerTeam)
 		setGridTable(gridData)
@@ -119,6 +102,7 @@ export default function Grid() {
 		const currentMonday = new Date(dates[0])
 		setDates(getDates(previousMonday(currentMonday)))
 		resetHalfWidth()
+		resetBigTeamInfo()
 		setTeamNames(teamNamesDefault)
 	}
 
@@ -126,32 +110,38 @@ export default function Grid() {
 		const currentMonday = new Date(dates[0])
 		setDates(getDates(nextMonday(currentMonday)))
 		resetHalfWidth()
+		resetBigTeamInfo()
 		setTeamNames(teamNamesDefault)
 	}
 
 	const resetHalfWidth = () => setHalfWidth(Array(7).fill(false))
+	const resetBigTeamInfo = () => setShowBigTeamInfo(Array(32).fill(false))
 
 	const prevDay = () => {
 		const dayBefore = add(new Date(dates[0]), { days: -1 })
 		setDates([format(dayBefore, "yyyy-MM-dd"), ...dates.slice(0, -1)])
 		setHalfWidth([false, ...halfWidth.slice(0, -1)])
+		resetBigTeamInfo()
 	}
 
 	const nextDay = () => {
 		const dayAfter = add(new Date(dates.at(-1)), { days: 1 })
 		setDates([...dates.slice(1), format(dayAfter, "yyyy-MM-dd")])
 		setHalfWidth([...halfWidth.slice(1), false])
+		resetBigTeamInfo()
 	}
 
 	const addDay = () => {
 		setHalfWidth([...halfWidth, false])
 		const dayAfter = add(new Date(dates.at(-1)), { days: 1 })
 		setDates([...dates, format(dayAfter, "yyyy-MM-dd")])
+		resetBigTeamInfo()
 	}
 
 	const removeDay = () => {
 		setHalfWidth(halfWidth.slice(0, -1))
 		setDates(dates.slice(0, -1))
+		resetBigTeamInfo()
 	}
 
 	const handleHalfWidth = (event, colPos) => {
@@ -246,6 +236,8 @@ export default function Grid() {
 						rivalsIds={rivalsIds}
 						gamesPlayed={matchesPerTeam[i]}
 						showHalfWidth={halfWidth}
+						showBigTeamInfo={showBigTeamInfo}
+						setShowBigTeamInfo={setShowBigTeamInfo}
 					/>
 				)
 		  })

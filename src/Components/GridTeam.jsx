@@ -1,17 +1,13 @@
-import { useState } from "react"
-
 import { logoNhl } from "./Logos"
 import "./GridTeam.css"
 import extraStyles from "../Styles/ExtraStyles"
 import React from "react"
 
 export default function GridTeam(props) {
-	const { teamId, showHalfWidth } = props
-	const [bigInfoBox, setBigInfoBox] = useState(Array(32).fill(false))
+	const { teamId, showHalfWidth, showBigTeamInfo, setShowBigTeamInfo } = props
 
 	const toggleBigInfo = (pos) => {
-		console.log(pos)
-		setBigInfoBox((oldValue) => {
+		setShowBigTeamInfo((oldValue) => {
 			const newValues = [...oldValue]
 			newValues[pos] = !newValues[pos]
 			return newValues
@@ -59,7 +55,7 @@ export default function GridTeam(props) {
 			<div
 				className={`big-team-info`}
 				style={
-					bigInfoBox[props.index]
+					showBigTeamInfo[props.index]
 						? {
 								backgroundColor: "#31353c",
 								padding: "1em 0",
