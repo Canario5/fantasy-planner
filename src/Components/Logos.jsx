@@ -6,11 +6,11 @@ const logoNhl = {}
 for (const path in modules) {
 	/* console.log(modules) */
 	/* modules[path]().then(() => { */
-	console.log(path)
+	/* console.log(path) */
 	const id = path.replace(/(\D+)/g, "")
 	const logoObject = new URL(`../svg/${id}.svg`, import.meta.url).href
 
-	console.log(logoObject)
+	/* console.log(logoObject) */
 	logoNhl[id] = logoObject
 
 	/* 	}) */
