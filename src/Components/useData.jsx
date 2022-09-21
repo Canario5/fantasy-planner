@@ -9,7 +9,7 @@ export default function useApiData() {
 	async function getSchedule() {
 		try {
 			const res = await fetch(
-				"https://statsapi.web.nhl.com/api/v1/schedule?season=20212022"
+				"https://statsapi.web.nhl.com/api/v1/schedule?season=20222023"
 			) // YYYY-MM-DD; Season 21-22 starts 12 October 2021
 
 			if (!res.ok) throw new Error(`This is an HTTP error: ${res.status}`)
